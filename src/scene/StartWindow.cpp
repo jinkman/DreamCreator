@@ -1,6 +1,4 @@
 #include "StartWindow.h"
-#include "rendering/OpenglWidget.h"
-
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -17,8 +15,6 @@ StartWindow::StartWindow(QWidget *parent, Qt::WindowFlags flags) :
     QMainWindow(parent, flags) {
     this->resize(800, 600);
     setObjectName("StartWindow");
-    OpenGLWidget *openglWgt = new OpenGLWidget(this);
-    setCentralWidget(openglWgt);
 
     setupMenuBar();
 
@@ -48,7 +44,10 @@ void StartWindow::setupDockWidget() {
     pal.setColor(QPalette::Window, QColor::fromRgb(27, 27, 27, 255));
     dock->setAutoFillBackground(true);
     dock->setPalette(pal);
-    this->setStyleSheet("QMainWindow::separator {height:0;width:0;}");
+    this->setStyleSheet(QString("QMainWindow::separator{\n"
+                                "   height:0;\n"
+                                "   width:0;\n"
+                                "}"));
 
     // 添加垂直布局
     QWidget *wgt = new QWidget(dock);
@@ -57,18 +56,18 @@ void StartWindow::setupDockWidget() {
     QPushButton *buttonOpen = new QPushButton("打开文件");
     buttonOpen->setParent(this);
     buttonOpen->setFixedSize(200, 100);
-    buttonOpen->setStyleSheet(QString::fromUtf8("QPushButton{\n"
-                                                "font: bold 24px;\n"
-                                                "border-radius: 15;\n"
-                                                "color: rgb(255, 255, 255);\n"
-                                                "}\n"
-                                                "QPushButton::hover{\n"
-                                                "background-color: rgb(40, 40, 40);\n"
-                                                "}\n"
-                                                "QPushButton::!hover{\n"
-                                                "background-color: rgb(36, 36, 36);\n"
-                                                "}\n"
-                                                ""));
+    buttonOpen->setStyleSheet(QString("QPushButton{\n"
+                                      "   font: bold 24px;\n"
+                                      "   border-radius: 15;\n"
+                                      "   color: rgb(255, 255, 255);\n"
+                                      "}\n"
+                                      "QPushButton::hover{\n"
+                                      "   background-color: rgb(40, 40, 40);\n"
+                                      "}\n"
+                                      "QPushButton::!hover{\n"
+                                      "   background-color: rgb(36, 36, 36);\n"
+                                      "}\n"
+                                      ""));
     vBoxLayout->addWidget(buttonOpen);
     vBoxLayout->addStretch();
     dock->setWidget(wgt);
@@ -84,7 +83,7 @@ void StartWindow::openFile() {
     QString fileName = QFileDialog::getOpenFileName(
         this,
         tr("Open File"),
-        "/",
+        "",
         tr("Scene (*.json *.txt)")); // 多组扩展名用双分号";;"隔开
 
     if (!fileName.isEmpty()) {

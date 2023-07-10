@@ -1,6 +1,7 @@
 #include "GLUtils.h"
 #include "common/stb_image.h"
 #include <mutex>
+#include "LogUtils.h"
 
 namespace DM {
 
@@ -22,30 +23,29 @@ std::shared_ptr<GLUtils> GLUtils::Get() {
             singleton = temp;
         }
     }
+    singleton->initializeOpenGLFunctions();
     return singleton;
 }
 
-GLTexture GLUtils::createTexture(const std::string &path) {
+GLTexture GLUtils::loadTexture(const std::string &path) {
     stbi_set_flip_vertically_on_load(true);
     GLTexture texture;
     glGenTextures(1, &texture.id);
-    int nrComponents = 0;
-    unsigned char *data = stbi_load(path.c_str(), &texture.width, &texture.height, &nrComponents, 0);
+    unsigned char *data = stbi_load(path.c_str(), &texture.width, &texture.height, &texture.nChannle, 0);
     if (data) {
-        if (nrComponents == 1)
+        if (texture.nChannle == 1)
             texture.format = GL_RED;
-        else if (nrComponents == 3)
+        else if (texture.nChannle == 3)
             texture.format = GL_RGB;
-        else if (nrComponents == 4)
+        else if (texture.nChannle == 4)
             texture.format = GL_RGBA;
 
         glBindTexture(GL_TEXTURE_2D, texture.id);
         glTexImage2D(GL_TEXTURE_2D, 0, texture.format, texture.width, texture.height, 0, texture.format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_image_free(data);
@@ -53,8 +53,40 @@ GLTexture GLUtils::createTexture(const std::string &path) {
         texture.id = 0;
         stbi_image_free(data);
     }
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     return texture;
+}
+
+GLTexture GLUtils::createTexture(uint8_t *data, const int &wid, const int &hei,
+                                 const int &nChannle) {
+    GLTexture texture;
+    glGenTextures(1, &texture.id);
+    texture.width = wid;
+    texture.height = hei;
+    texture.nChannle = nChannle;
+    if (nChannle == 1)
+        texture.format = GL_RED;
+    else if (nChannle == 3)
+        texture.format = GL_RGB;
+    else if (nChannle == 4)
+        texture.format = GL_RGBA;
+
+    glBindTexture(GL_TEXTURE_2D, texture.id);
+    glTexImage2D(GL_TEXTURE_2D, 0, texture.format, texture.width, texture.height, 0, texture.format, GL_UNSIGNED_BYTE, data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return texture;
+}
+
+void GLUtils::bindDataToTexture(uint8_t *data, GLTexture &texture) {
+    glBindTexture(GL_TEXTURE_2D, texture.id);
+    glTexImage2D(GL_TEXTURE_2D, 0, texture.format, texture.width, texture.height, 0, texture.format, GL_UNSIGNED_BYTE, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void GLUtils::deleteTexture(GLTexture &texture) {
@@ -64,12 +96,8 @@ void GLUtils::deleteTexture(GLTexture &texture) {
 }
 
 void GLUtils::cleanColor(const unsigned int &fbo, const GLColor &clr) {
-    GLint oldFbo = 0;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glClearColor(clr.r, clr.g, clr.b, clr.a);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
 }
 
 void GLUtils::renderQuadInternal(const Rect &boundBox) {
@@ -100,6 +128,36 @@ void GLUtils::renderQuadInternal(const Rect &boundBox) {
 
 void GLUtils::setViewPort(const Rect &vp) {
     glViewport(vp.left, vp.top, vp.right, vp.bottom);
+}
+
+GLFrameBuffer GLUtils::createFrameBuffer(const int &wid, const int &hei, const int &nChannle) {
+    GLFrameBuffer fbo;
+    fbo.width = wid;
+    fbo.height = hei;
+    glGenFramebuffers(1, &fbo.fboId);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo.fboId);
+    fbo.tex = createTexture(nullptr, wid, hei, nChannle);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo.tex.id, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        DMLOG << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!";
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    return fbo;
+}
+
+void GLUtils::deleteFrameBuffer(GLFrameBuffer &fbo) {
+    deleteTexture(fbo.tex);
+    glDeleteFramebuffers(1, &(fbo.fboId));
+    fbo.width = 0;
+    fbo.height = 0;
+    fbo.fboId = -1;
+}
+
+void GLUtils::bindFrameBuffer(const GLFrameBuffer &fbo) {
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo.fboId);
+}
+
+void GLUtils::readPixels(const GLFrameBuffer &fbo, unsigned char *dstData) {
+    glReadPixels(0, 0, fbo.width, fbo.height, fbo.tex.format, GL_UNSIGNED_BYTE, dstData);
 }
 
 } // namespace DM

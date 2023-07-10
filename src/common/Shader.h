@@ -6,13 +6,12 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <iostream>
+#include <utils/LogUtils.h>
 
 namespace DM {
 
 class Shader : protected QOpenGLFunctions_3_3_Core {
 public:
-    unsigned int ID;
     Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath = nullptr) {
         initializeOpenGLFunctions();
 
@@ -47,7 +46,7 @@ public:
                 geometryCode = gShaderStream.str();
             }
         } catch (std::ifstream::failure e) {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+            DMLOG << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ";
         }
         const char *vShaderCode = vertexCode.c_str();
         const char *fShaderCode = fragmentCode.c_str();
@@ -86,6 +85,10 @@ public:
         glDeleteShader(fragment);
         if (geometryPath != nullptr)
             glDeleteShader(geometry);
+    }
+
+    ~Shader() {
+        glDeleteProgram(ID);
     }
     // active program
     void use() {
@@ -150,6 +153,8 @@ public:
     }
 
 private:
+    unsigned int ID;
+
     // check error
     void checkCompileErrors(GLuint shader, std::string type) {
         GLint success;
@@ -158,15 +163,15 @@ private:
             glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
             if (!success) {
                 glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n"
-                          << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                DMLOG << "ERROR::SHADER_COMPILATION_ERROR of type: " << type.c_str() << "\n"
+                      << infoLog << "\n -- --------------------------------------------------- -- ";
             }
         } else {
             glGetProgramiv(shader, GL_LINK_STATUS, &success);
             if (!success) {
                 glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n"
-                          << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                DMLOG << "ERROR::PROGRAM_LINKING_ERROR of type: " << type.c_str() << "\n"
+                      << infoLog << "\n -- --------------------------------------------------- -- ";
             }
         }
     }

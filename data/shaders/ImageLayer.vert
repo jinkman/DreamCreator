@@ -13,5 +13,5 @@ void main()
     gl_Position = projection * model * vec4(aPos, 1.0);
     // 左上角为坐标原点
     gl_Position.y *= -1.0;
-    texCoord.y = 1.0 - texCoord.y;
+    texCoord.y = texCoord.y;
 }

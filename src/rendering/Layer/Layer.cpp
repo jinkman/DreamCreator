@@ -17,6 +17,20 @@ Layer::Layer(const nlohmann::json &obj, RootNode &rootNode) :
     if (obj.contains("scaleMode")) {
         mScaleMode = obj["scaleMode"].get<int>();
     }
+    // transform
+    if (obj.contains("transform")) {
+        auto transformObj = obj["transform"];
+        // 缩放
+        mScale.x = transformObj["scale"][0].get<float>();
+        mScale.y = transformObj["scale"][1].get<float>();
+        mScale.z = transformObj["scale"][2].get<float>();
+        // 旋转
+        mOrientation = glm::angleAxis(glm::radians(transformObj["orientation"][0].get<float>()), glm::vec3(transformObj["orientation"][1].get<float>(), transformObj["orientation"][2].get<float>(), transformObj["orientation"][3].get<float>()));
+        // 位移
+        mTranslate.x = transformObj["translate"][0].get<float>();
+        mTranslate.y = transformObj["translate"][1].get<float>();
+        mTranslate.z = transformObj["translate"][2].get<float>();
+    }
 }
 
 void Layer::preDraw() {

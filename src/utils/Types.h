@@ -5,6 +5,14 @@
 
 namespace DM {
 
+typedef int64_t DMTime;
+
+typedef int DMFrame;
+
+static DMFrame timeToFrame(DMTime time, float frameRate) {
+    return static_cast<DMFrame>(time * frameRate / 1000);
+}
+
 /**
  * Defines the rules on how to scale the content to fit the specified area.
  */
@@ -32,7 +40,9 @@ public:
 
 class GLColor {
 public:
-    static GLColor Deserialization(const nlohmann::json &obj);
+    static GLColor deserialization(const nlohmann::json &obj);
+
+    nlohmann::json serialization();
 
     GLColor(float red, float green, float blue, float alpha);
 

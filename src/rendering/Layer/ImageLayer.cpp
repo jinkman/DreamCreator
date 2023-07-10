@@ -30,18 +30,31 @@ void ImageLayer::postDraw() {
 ImageLayer::ImageLayer(const nlohmann::json &obj, RootNode &rootNode) :
     Layer(obj, rootNode) {
     mType = ELayerType::EIMAGE_LAYER;
-    updateImagePath(obj["path"].get<std::string>());
+    if (obj.contains("path")) {
+        updateImagePath(obj["path"].get<std::string>());
+    }
 }
 
 void ImageLayer::updateImagePath(const std::string &path) {
     mImagePath = path;
     if (!texture) {
         auto realPath = getRootNode().getRealFilePath(mImagePath);
-        texture = GLUtils::Get()->createTexture(realPath);
-        if (getBoundBox().isEmpty()) {
-            updateBoundBox(Rect::MakeWH(texture.width, texture.height));
-        }
+        texture = GLUtils::Get()->loadTexture(realPath);
     }
+    updateBoundBox(Rect::MakeWH(texture.width, texture.height));
+}
+
+void ImageLayer::updateImageData(uint8_t *data, const int &wid, const int &hei,
+                                 const int &nChannle) {
+    if (!texture) {
+        texture = GLUtils::Get()->createTexture(data, wid, hei, nChannle);
+    } else if (texture.width != wid || texture.height != hei || texture.nChannle != nChannle) {
+        GLUtils::Get()->deleteTexture(texture);
+        texture = GLUtils::Get()->createTexture(data, wid, hei, nChannle);
+    } else {
+        GLUtils::Get()->bindDataToTexture(data, texture);
+    }
+    updateBoundBox(Rect::MakeWH(texture.width, texture.height));
 }
 
 } // namespace DM

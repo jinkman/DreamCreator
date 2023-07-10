@@ -2,12 +2,17 @@
 
 namespace DM {
 
-GLColor GLColor::Deserialization(const nlohmann::json &obj) {
+GLColor GLColor::deserialization(const nlohmann::json &obj) {
     return GLColor(obj[0].get<float>(), obj[1].get<float>(), obj[2].get<float>(), obj[3].get<float>());
 }
 
+nlohmann::json GLColor::serialization() {
+    return nlohmann::json::array({r, g, b, a});
+}
+
 GLColor::GLColor(float red, float green, float blue, float alpha) :
-    r(red), g(green), b(blue), a(alpha) {
+    r(red),
+    g(green), b(blue), a(alpha) {
 }
 
 GLColor::GLColor(float red, float green, float blue) :

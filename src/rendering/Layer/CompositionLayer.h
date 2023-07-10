@@ -17,6 +17,23 @@ public:
 
     virtual void postDraw() override;
 
+    // 图层管理
+    void addLayer(std::shared_ptr<Layer> ly);
+
+    void addLayerAtIndex(std::shared_ptr<Layer> ly, int index);
+
+    int getLayerIndex(std::shared_ptr<Layer> ly);
+
+    std::shared_ptr<Layer> getLayerAtIndex(int index);
+
+    void removeLayer(std::shared_ptr<Layer> ly);
+
+    void removeLayerAtIndex(int index);
+
+    void removeAllLayer();
+
+    int numberChildren() const;
+
 protected:
     CompositionLayer(const nlohmann::json &obj, RootNode &rootNode);
 

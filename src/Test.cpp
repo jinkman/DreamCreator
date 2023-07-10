@@ -1,4 +1,5 @@
 #include "scene/WindowManager.h"
+#include <QSurfaceFormat>
 #include <QApplication>
 
 int main(int argc, char **argv) {

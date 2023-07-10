@@ -3,10 +3,15 @@
 
 #include <Config.h>
 #include <string>
+#include <QString>
 
 namespace DM {
-std::string getLocalPath(const std::string &path) {
+static std::string getLocalPath(const std::string &path) {
     return std::string(DATA_PATH) + path;
+}
+
+static QString getQLocalPath(const QString &path) {
+    return QString::fromStdString(DATA_PATH) + path;
 }
 
 } // namespace DM

@@ -1,0 +1,75 @@
+#include "VideoFootage.h"
+#include "rendering/layer/ImageLayer.h"
+
+namespace DM {
+
+std::shared_ptr<Footage> VideoFootage::createVideoFootageByJson(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode) {
+    std::shared_ptr<VideoFootage> videoFootage(new VideoFootage(obj, rtNode));
+    return videoFootage;
+}
+
+VideoFootage::VideoFootage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode) :
+    Footage(obj, rtNode) { // 解析
+    mResStartTime = obj["resStartTime"].get<DMTime>();
+    mResEndTime = obj["resEndTime"].get<DMTime>();
+    if (obj.contains("transform")) {
+        mLayerTransform = obj["transform"];
+    }
+}
+
+VideoFootage::~VideoFootage() {
+}
+
+void VideoFootage::flush(DMTime t) {
+    if (t < startTime() || t >= endTime()) { // 不可见
+        mImageLayer->visible() = false;
+        return;
+    }
+
+    mImageLayer->visible() = true;
+    double ratio = double(t - startTime()) / double(duration());
+    DMTime interceptTime = mResStartTime + DMTime((mResEndTime - mResStartTime) * ratio);
+
+    // 时间转帧
+    DMFrame frame = timeToFrame(interceptTime, mFrameRate);
+    if (frame == mLastFrame) {
+        return;
+    }
+
+    // 跳帧
+    if (frame - mLastFrame != 1) { // 设置开始帧
+        mVideoCap.set(cv::CAP_PROP_POS_FRAMES, frame);
+    }
+
+    mVideoCap.read(matCache);
+    mLastFrame = frame;
+    if (matCache.empty()) { // 读取空帧不算错误
+        return;
+    }
+    cv::cvtColor(matCache, matCache, cv::COLOR_BGRA2RGBA);
+    // 更新
+    mImageLayer->updateImageData(matCache.data, matCache.cols, matCache.rows, matCache.channels());
+}
+
+void VideoFootage::updateResources(const std::string &path) {
+    std::string realPath = mRootNode == nullptr ? path : mRootNode->getRealFilePath(path);
+    mVideoCap.open(realPath);
+    if (!mVideoCap.isOpened()) {
+        return;
+    }
+    mFrameRate = mVideoCap.get(cv::CAP_PROP_FPS); // 帧率
+    mLastFrame = -1;
+    // 创建图层
+    if (mImageLayer == nullptr) {
+        nlohmann::json layerJson = nlohmann::json::object();
+        layerJson["type"] = "image";
+        layerJson["scaleMode"] = 2;
+        if (!mLayerTransform.is_null()) {
+            layerJson["transform"] = mLayerTransform;
+        }
+        mImageLayer = ImageLayer::creatImageLayerByJson(layerJson, *mRootNode);
+        mRootNode->getRootComposition()->addLayer(mImageLayer);
+    }
+}
+
+} // namespace DM

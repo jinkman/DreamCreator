@@ -18,6 +18,9 @@ public:
 
     void updateImagePath(const std::string &path);
 
+    void updateImageData(uint8_t *data, const int &wid, const int &hei,
+                         const int &nChannle);
+
 protected:
     ImageLayer(const nlohmann::json &obj, RootNode &rootNode);
 

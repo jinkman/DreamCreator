@@ -8,6 +8,8 @@ class RootNode {
 public:
     static std::shared_ptr<RootNode> creatRootNodeByFile(const QString &jstr);
 
+    static std::shared_ptr<RootNode> creatRootNodeByJson(const nlohmann::json &obj);
+
     ~RootNode();
 
     void draw();
@@ -20,8 +22,14 @@ public:
 
     std::shared_ptr<Shader> getImageShader();
 
+    std::shared_ptr<CompositionLayer> getRootComposition();
+
+    void setRootPath(const std::filesystem::path &path);
+
+    std::filesystem::path getRootPath() const;
+
 protected:
-    RootNode(const nlohmann::json &obj,const std::string & path);
+    RootNode(const nlohmann::json &obj);
 
 private:
     void preDraw();
@@ -34,7 +42,7 @@ private:
     unsigned int mWidth = 0;
     unsigned int mHeight = 0;
     GLColor mBgColor = {1.0f, 1.0f, 1.0f, 1.0f};
-    std::filesystem::path mRelativePath = "";
+    std::filesystem::path mRelativePath = "./";
     // 着色器
     std::shared_ptr<Shader> mImageShader = nullptr;
     // root

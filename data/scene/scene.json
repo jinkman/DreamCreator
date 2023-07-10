@@ -1,0 +1,47 @@
+{
+    "videoProperty": {
+        "width": 720,
+        "height": 1280,
+        "fps": 30.0,
+        "duration": 10000,
+        "backgroundColor": [
+            0.2,
+            0.3,
+            0.3,
+            1.0
+        ]
+    },
+    "trackInfo": [
+        {
+            "trackType": "footage",
+            "footages": [
+                {
+                    "startTime": 0,
+                    "endTime": 10000,
+                    "resStartTime": 0,
+                    "resEndTime": 10000,
+                    "footageType": "mp4",
+                    "resourcesPath": "./bkGaussianBlur.mp4",
+                    "transform": {
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "orientation": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "translate": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

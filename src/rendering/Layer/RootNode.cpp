@@ -22,20 +22,25 @@ std::shared_ptr<RootNode> RootNode::creatRootNodeByFile(const QString &jstr) {
     box_array.push_back(obj["width"].get<int>());
     box_array.push_back(obj["height"].get<int>());
     obj["boundBox"] = box_array;
-    std::shared_ptr<RootNode> rootNode(new RootNode(obj, filePath.parent_path()));
+    std::shared_ptr<RootNode> rootNode(new RootNode(obj));
+    // rootNode->setRootPath(filePath.parent_path());
+    return rootNode;
+}
+
+std::shared_ptr<RootNode> RootNode::creatRootNodeByJson(const nlohmann::json &obj) {
+    std::shared_ptr<RootNode> rootNode(new RootNode(obj));
     return rootNode;
 }
 
 RootNode::~RootNode() {
 }
 
-RootNode::RootNode(const nlohmann::json &obj, const std::string &path) :
-    mRelativePath(path) {
+RootNode::RootNode(const nlohmann::json &obj) {
     // 解析
     mWidth = obj["width"].get<unsigned int>();
     mHeight = obj["height"].get<unsigned int>();
-    if (obj.contains("backGroundClr")) {
-        mBgColor = GLColor::Deserialization(obj["backGroundClr"]);
+    if (obj.contains("backgroundColor")) {
+        mBgColor = GLColor::deserialization(obj["backgroundColor"]);
     }
     // 初始化着色器
     initShaders();
@@ -66,6 +71,18 @@ std::string RootNode::getRealFilePath(const std::string &path) {
 
 std::shared_ptr<Shader> RootNode::getImageShader() {
     return mImageShader;
+}
+
+std::shared_ptr<CompositionLayer> RootNode::getRootComposition() {
+    return mRootCom;
+}
+
+void RootNode::setRootPath(const std::filesystem::path &path) {
+    mRelativePath = path;
+}
+
+std::filesystem::path RootNode::getRootPath() const {
+    return mRelativePath;
 }
 
 void RootNode::preDraw() {
