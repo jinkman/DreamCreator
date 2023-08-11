@@ -1,3 +1,9 @@
 [submodule "third-party/json"]
 	path = third-party/json
 	url = https://github.com/nlohmann/json.git
+[submodule "third-party/glm"]
+	path = third-party/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "third-party/opencv"]
+	path = third-party/opencv
+	url = https://github.com/opencv/opencv.git

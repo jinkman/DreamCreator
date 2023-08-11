@@ -14,7 +14,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Widgets  Concurrent REQUIRED)
+# 系统路径查找
+find_package(Qt5 COMPONENTS Widgets Concurrent REQUIRED)
 
 # 设置输出路径
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -27,21 +28,17 @@ set(data-path ${CMAKE_CURRENT_SOURCE_DIR}/data)
 set(DATA_PATH ${data-path}/)
 
 # 添加三方库
-ADD_SUBDIRECTORY(${third-party-path}/glm)
+set(glm_DIR ${third-party-path}/glm/deploy/lib/cmake/glm)
+find_package(glm REQUIRED)
+set(OpenCV_DIR ${third-party-path}/opencv/deploy/lib/cmake/opencv5)
+find_package(OpenCV COMPONENTS opencv_core opencv_video opencv_videoio opencv_highgui REQUIRED)
 
-set(BUILD_ZLIB OFF)
-set(ENABLE_PRECOMPILED_HEADERS OFF)
-set(WITH_FFMPEG OFF)
-ADD_SUBDIRECTORY(${third-party-path}/opencv-4.0)
+
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-
 # 添加头文件
 list(APPEND INCLUDES_DIR ${SRC_DIR}/)
 list(APPEND INCLUDES_DIR ${SRC_DIR}/common)
-list(APPEND INCLUDES_DIR ${third-party-path}/glm)
 list(APPEND INCLUDES_DIR ${third-party-path}/json/single_include)
-
-list(APPEND INCLUDES_DIR ${third-party-path}/opencv-4.0/preBuild)
 
 # 配置文件
 configure_file(

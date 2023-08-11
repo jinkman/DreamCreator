@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "window/ContentWindow.h"
-#include "VideoPlayer.h"
+#include "widget/VideoPlayer.h"
 
 namespace DM {
 class EditorWindow : public QMainWindow {
