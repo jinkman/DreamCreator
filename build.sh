@@ -7,12 +7,17 @@ if [[ x"$1" == x"Debug" ]]; then
     build_type="Debug"
 fi
 
+if [[ x"$1" == x"r" ]]; then
+    rm -rf ${workdir}/build
+    build_type="Debug"
+fi
+
 target=""
 
 cd ${workdir} && \
-mkdir -p ./build && \
-cmake -B ./build -DCMAKE_BUILD_TYPE=${build_type} && \
-cmake --build ./build ${target} -- -j 12
+mkdir -p ${workdir}/build && \
+cmake -B ${workdir}/build -DCMAKE_BUILD_TYPE=${build_type} && \
+cmake --build ${workdir}/build ${target} -- -j 12
 
 if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to build"

@@ -8,6 +8,7 @@
 #include <QSplitter>
 #include <QToolButton>
 #include "common/Common.h"
+#include "scene/widget/DividingRule.h"
 
 namespace DM {
 
@@ -134,7 +135,7 @@ void EditorWindow::setupPropertyWgt() {
 void EditorWindow::setupTrackWgt() {
     mTrackEditor = new ContentWindow(this);
     auto titleLabel = mTrackEditor->getTitleWidget();
-    titleLabel->setMinimumSize(titleLabel->minimumWidth(), 40);
+    titleLabel->setMinimumHeight(40);
     titleLabel->setMaximumHeight(40);
     QHBoxLayout *layout = new QHBoxLayout(titleLabel);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -163,10 +164,18 @@ void EditorWindow::setupTrackWgt() {
     QLabel *trackLabel = new QLabel(mTrackEditor);
     trackLabel->setMinimumHeight(200);
     trackLabel->setStyleSheet(QString("QLabel{\n"
-                                      "    background-color:rgb(30, 30, 31);\n"
+                                      "    background-color:rgb(27, 27, 28);\n"
                                       "    border-bottom-left-radius:15;\n"
                                       "    border-bottom-right-radius:15;\n"
                                       "}"));
+    QVBoxLayout *trackLayout = new QVBoxLayout(trackLabel);
+    trackLayout->setContentsMargins(0, 0, 0, 0);
+    // 布局
+    DividingRule *rule = new DividingRule(trackLabel);
+    trackLayout->addWidget(rule);
+    trackLayout->addStretch();
+
+    trackLabel->setLayout(trackLayout);
     mainLayout->addWidget(trackLabel);
 }
 
