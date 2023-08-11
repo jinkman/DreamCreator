@@ -11,10 +11,8 @@
 namespace DM {
 
 VideoPlayer::VideoPlayer(QWidget *parent) :
-    QWidget(parent) {
-    setupLayout();
-
-    setupTopWgt();
+    ContentWindow(parent) {
+    setupTitle();
 
     setupPlayer();
 
@@ -44,34 +42,17 @@ void VideoPlayer::resetScene() {
     mOpenGLWgt->closeScene();
 }
 
-void VideoPlayer::setupLayout() {
-    // 垂直布局 三部分
-    mMainLayout = new QVBoxLayout(this);
-    mMainLayout->setContentsMargins(0, 7, 0, 0);
-    mMainLayout->setSpacing(0);
-    this->setLayout(mMainLayout);
-}
+void VideoPlayer::setupTitle() {
+    auto titleLabel = getTitleWidget();
 
-void VideoPlayer::setupTopWgt() {
-    // 放置label
-    QLabel *topLabel = new QLabel(this);
-    topLabel->setMinimumSize(300, 50);
-    topLabel->setMaximumHeight(50);
-    QHBoxLayout *layout = new QHBoxLayout(topLabel);
-    topLabel->setContentsMargins(0, 0, 0, 0);
-    topLabel->setStyleSheet(QString("QLabel{\n"
-                                    "   background-color:rgb(41, 41, 45);\n"
-                                    "   border-top-left-radius:15;\n"
-                                    "   border-top-right-radius:15;\n"
-                                    "}"));
-
-    QLabel *lable = new QLabel("播放器", topLabel);
+    QHBoxLayout *layout = new QHBoxLayout(titleLabel);
+    QLabel *lable = new QLabel("播放器", titleLabel);
     lable->setStyleSheet(QString("QLabel{\n"
                                  "  font: 12px;\n"
                                  "  color:white;\n"
                                  "}"));
 
-    QPushButton *btn = new QPushButton(topLabel);
+    QPushButton *btn = new QPushButton(titleLabel);
     btn->setStyleSheet(QString("QPushButton{\n"
                                "    background:transparent;\n"
                                "    border-image:url(%1);\n"
@@ -90,9 +71,7 @@ void VideoPlayer::setupTopWgt() {
     layout->addWidget(lable);
     layout->addStretch();
     layout->addWidget(btn);
-
-    topLabel->setLayout(layout);
-    mMainLayout->addWidget(topLabel);
+    titleLabel->setLayout(layout);
 }
 
 void VideoPlayer::setupPlayer() {
@@ -116,7 +95,9 @@ void VideoPlayer::setupPlayer() {
     hLayout->addStretch();
     hLayout->addWidget(vCenterWgt);
     hLayout->addStretch();
-    mMainLayout->addWidget(mHCenterWgt);
+    auto mainLayout = getLayout();
+    mainLayout->setContentsMargins(0, 7, 0, 0);
+    mainLayout->addWidget(mHCenterWgt);
 }
 
 void VideoPlayer::setupBottomWgt() {
@@ -164,7 +145,9 @@ void VideoPlayer::setupBottomWgt() {
     layout->addWidget(btn);
     layout->addStretch();
     bottomLabel->setLayout(layout);
-    mMainLayout->addWidget(bottomLabel);
+
+    auto mainLayout = getLayout();
+    mainLayout->addWidget(bottomLabel);
 }
 
 void VideoPlayer::saveFile() {

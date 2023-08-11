@@ -6,6 +6,8 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QSplitter>
+#include <QToolButton>
+#include "common/Common.h"
 
 namespace DM {
 
@@ -15,13 +17,13 @@ EditorWindow::EditorWindow(QWidget *parent, Qt::WindowFlags flags) :
 
     this->setStyleSheet(QString("background-color: rgb(0, 0, 0)"));
 
-    mContentWidget = new ContentWidget(this);
+    setupContentWgt();
 
-    mVideoPlayer = new VideoPlayer();
+    setupPlayerWgt();
 
-    mPropertyWidget = new PropertyWidget(this);
+    setupPropertyWgt();
 
-    mTrackEditor = new TrackEditor(this);
+    setupTrackWgt();
 
     setupMenuBar();
 
@@ -37,6 +39,135 @@ EditorWindow::~EditorWindow() {
 
 void EditorWindow::openScene(const QString &jstr) {
     mVideoPlayer->initSceneByFile(jstr);
+}
+
+void EditorWindow::setupContentWgt() {
+    static const std::vector<
+        std::tuple<QString, QString, QString>>
+        contentItem = {
+            {"媒体", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
+            {"音频", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
+            {"文本", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
+            {"贴纸", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
+            {"特效", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
+            {"转场", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
+            {"滤镜", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
+            {"调节", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
+            {"模板", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")}};
+
+    mContentWgt = new ContentWindow(this);
+    auto titleLabel = mContentWgt->getTitleWidget();
+    titleLabel->setContentsMargins(10, 0, 10, 0);
+    QHBoxLayout *layout = new QHBoxLayout(titleLabel);
+    layout->setContentsMargins(0, 5, 0, 0);
+    // 放置按钮
+    for (auto &content : contentItem) {
+        QToolButton *btn = new QToolButton(titleLabel);
+        btn->setFixedSize(50, 50);
+        btn->setIcon(QIcon(std::get<1>(content)));
+        btn->setIconSize(QSize(20, 20));
+        btn->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+        btn->setStyleSheet(QString("QToolButton{\n"
+                                   "    color:white;\n"
+                                   "    background:transparent;\n"
+                                   "}"));
+        btn->setText(std::get<0>(content));
+        layout->addWidget(btn);
+    }
+    layout->addStretch();
+
+    auto mainLayout = mContentWgt->getLayout();
+    mainLayout->setContentsMargins(7, 7, 0, 0);
+    QSplitter *splitterMain = new QSplitter(Qt::Horizontal, this); // 水平布置
+    splitterMain->setHandleWidth(1);
+    splitterMain->setStyleSheet(QString("QSplitter::handle{\n"
+                                        "   background-color:rgb(37, 37, 40);\n"
+                                        "}\n"));
+    QLabel *leftLabel = new QLabel(splitterMain);
+    leftLabel->setMinimumWidth(100);
+    leftLabel->setStyleSheet(QString("QLabel{\n"
+                                     "  background-color:rgb(37, 37, 40);\n"
+                                     "  border-bottom-left-radius:15;\n"
+                                     "}"));
+    QLabel *centerLabel = new QLabel(splitterMain);
+    centerLabel->setMinimumSize(300, 300);
+    centerLabel->setStyleSheet(QString("QLabel{\n"
+                                       "  background-color:rgb(27, 27, 28);\n"
+                                       "  border-bottom-right-radius:15;\n"
+                                       "}"));
+    splitterMain->addWidget(leftLabel);
+    splitterMain->addWidget(centerLabel);
+    splitterMain->setChildrenCollapsible(false);
+    mainLayout->addWidget(splitterMain);
+}
+
+void EditorWindow::setupPlayerWgt() {
+    mVideoPlayer = new VideoPlayer();
+}
+
+void EditorWindow::setupPropertyWgt() {
+    mPropertyWidget = new ContentWindow(this);
+    auto titleLabel = mPropertyWidget->getTitleWidget();
+    QHBoxLayout *layout = new QHBoxLayout(titleLabel);
+    QLabel *lable = new QLabel("属性", titleLabel);
+    lable->setStyleSheet(QString("QLabel{\n"
+                                 "  font: 12px;\n"
+                                 "  color:white;\n"
+                                 "}"));
+
+    layout->addWidget(lable);
+    layout->addStretch();
+    titleLabel->setLayout(layout);
+
+    QLabel *centerLabel = new QLabel(mPropertyWidget);
+    centerLabel->setMinimumWidth(200);
+    centerLabel->setStyleSheet(QString("QLabel{\n"
+                                       "    background-color:rgb(27, 27, 28);\n"
+                                       "    border-bottom-left-radius:15;\n"
+                                       "    border-bottom-right-radius:15;\n"
+                                       "}"));
+    auto mainLayout = mPropertyWidget->getLayout();
+    mainLayout->setContentsMargins(0, 7, 7, 0);
+    mainLayout->addWidget(centerLabel);
+}
+
+void EditorWindow::setupTrackWgt() {
+    mTrackEditor = new ContentWindow(this);
+    auto titleLabel = mTrackEditor->getTitleWidget();
+    titleLabel->setMinimumSize(titleLabel->minimumWidth(), 40);
+    titleLabel->setMaximumHeight(40);
+    QHBoxLayout *layout = new QHBoxLayout(titleLabel);
+    layout->setContentsMargins(0, 0, 0, 0);
+    // 放置按钮
+    for (int i = 0; i < 6; i++) {
+        QToolButton *btn = new QToolButton(titleLabel);
+        btn->setFixedSize(30, 30);
+        btn->setIcon(QIcon(getQLocalPath("icon/play.png")));
+        btn->setIconSize(QSize(20, 20));
+        btn->setStyleSheet(QString("QToolButton{\n"
+                                   "    color:white;\n"
+                                   "    background:transparent;\n"
+                                   "}"
+                                   "QToolTip{\n"
+                                   "    color:white;\n"
+                                   "    background-color:rgb(7, 7, 9);\n"
+                                   "}"));
+        btn->setToolTip("提示信息");
+        layout->addWidget(btn);
+    }
+    layout->addStretch();
+    titleLabel->setLayout(layout);
+
+    auto mainLayout = mTrackEditor->getLayout();
+    mainLayout->setContentsMargins(7, 7, 7, 7);
+    QLabel *trackLabel = new QLabel(mTrackEditor);
+    trackLabel->setMinimumHeight(200);
+    trackLabel->setStyleSheet(QString("QLabel{\n"
+                                      "    background-color:rgb(30, 30, 31);\n"
+                                      "    border-bottom-left-radius:15;\n"
+                                      "    border-bottom-right-radius:15;\n"
+                                      "}"));
+    mainLayout->addWidget(trackLabel);
 }
 
 void EditorWindow::setupMenuBar() {
@@ -61,7 +192,7 @@ void EditorWindow::setupDockWidget() {
 
     // 添加QSplitter水平布局 1.素材、内容窗口；2.播放器窗口；3.调节窗口;
     QSplitter *splitterMain = new QSplitter(Qt::Horizontal, dockTop); // 水平布置
-    splitterMain->addWidget(mContentWidget);
+    splitterMain->addWidget(mContentWgt);
     splitterMain->addWidget(mVideoPlayer);
     splitterMain->addWidget(mPropertyWidget);
     splitterMain->setChildrenCollapsible(false);
@@ -87,5 +218,4 @@ void EditorWindow::closeEvent(QCloseEvent *e) {
     emit closeSignal();
     mVideoPlayer->resetScene();
 }
-
 } // namespace DM

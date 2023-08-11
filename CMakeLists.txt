@@ -7,6 +7,9 @@ PROJECT(PRO_NAME)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_compile_options(-Wno-nonportable-include-path)
+
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -54,6 +57,7 @@ add_executable(${PRO_NAME}
     ${SRC_CPP}
     ${SRC_H}
 )
+
 
 target_include_directories(${PRO_NAME}
     PUBLIC

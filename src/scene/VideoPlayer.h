@@ -2,13 +2,12 @@
 #define VIDEOPLAYER_H
 
 #include "OpenGLWidget.h"
-#include <QVBoxLayout>
-#include <QLabel>
+#include "window/ContentWindow.h"
 #include <QTimer>
 
 namespace DM {
 
-class VideoPlayer : public QWidget {
+class VideoPlayer : public ContentWindow {
     Q_OBJECT
 public:
     explicit VideoPlayer(QWidget *parent = 0);
@@ -25,9 +24,7 @@ public slots:
     void exportFile();
 
 private:
-    void setupLayout();
-
-    void setupTopWgt();
+    void setupTitle();
 
     void setupPlayer();
 
@@ -42,7 +39,6 @@ private slots:
 
 private:
     // 垂直布局
-    QVBoxLayout *mMainLayout = nullptr;
     OpenGLWidget *mOpenGLWgt = nullptr;
     QWidget *mHCenterWgt = nullptr;
     // 时长
