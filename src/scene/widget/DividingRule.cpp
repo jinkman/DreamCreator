@@ -12,6 +12,8 @@ DividingRule::DividingRule(QWidget *parent) :
     QWidget(parent) {
     this->setMinimumHeight(30);
     this->setMaximumHeight(30);
+    mDuration = 10000;
+    updateRule();
 }
 
 DividingRule::~DividingRule() {
@@ -19,6 +21,11 @@ DividingRule::~DividingRule() {
 
 void DividingRule::setDuration(const DMTime &v) {
     mDuration = v;
+    updateRule();
+}
+
+void DividingRule::setCurentTime(const DMTime &v) {
+    mCurrentTime = v;
 }
 
 void DividingRule::paintEvent(QPaintEvent *event) {
@@ -28,16 +35,14 @@ void DividingRule::paintEvent(QPaintEvent *event) {
     auto font = painter.font();
     font.setPixelSize(12);
     painter.setFont(font);
-    // painter.setBrush(QBrush({50, 50, 50, 255}));
-    // painter.drawRect(rect());
+    painter.setBrush(QBrush({50, 50, 50, 255}));
+    painter.drawRect(rect());
 
-    // 绘制
-    for (int i = 0; i < rectList.size(); i++) {
-        float value = round(showSize + (i - showSize) * mScale);
-        // float value = i;
-        painter.fillRect(rectList[i], {104, 104, 104, 255});
-        QString strValue = tr("%1").arg(value);
-        painter.drawText(QPointF(rectList[i].x() + 4, rectList[i].height() + rectList[i].y()), strValue);
+    // 绘制事件
+    for (auto &ruleScaleInfo : mRuleScaleInfos) {
+        auto rect = ruleScaleInfo.rect;
+        painter.fillRect(rect, {104, 104, 104, 255});
+        painter.drawText(QPointF(rect.x() + 4, rect.height() + rect.y()), ruleScaleInfo.text);
     }
 }
 
@@ -47,14 +52,15 @@ void DividingRule::mousePressEvent(QMouseEvent *event) {
 }
 
 void DividingRule::mouseMoveEvent(QMouseEvent *event) {
-    if (m_bClick && event->buttons() == Qt::LeftButton) {
+    if (m_bClick && event->buttons() == Qt::LeftButton && mRuleScaleInfos.size() != 0) {
         auto deltaX = event->pos().x() - m_clickPoint.x();
-        if (rectList.size() > 0 && (rectList[0].x() + deltaX) >= 0) {
-            deltaX = -rectList[0].x();
+        auto firstRec = mRuleScaleInfos[0].rect;
+        if (firstRec.x() + deltaX >= 0) {
+            deltaX = -firstRec.x();
         }
-        for (int i = 0; i < rectList.size(); i++) {
-            rectList[i].setX(deltaX + rectList[i].x());
-            rectList[i].setWidth(1);
+        for (auto &ruleScaleInfo : mRuleScaleInfos) {
+            ruleScaleInfo.rect.setX(deltaX + ruleScaleInfo.rect.x());
+            ruleScaleInfo.rect.setWidth(1);
         }
         m_clickPoint = event->pos();
         update();
@@ -67,23 +73,28 @@ void DividingRule::mouseReleaseEvent(QMouseEvent *event) {
 
 void DividingRule::wheelEvent(QWheelEvent *event) {
     // [-10,10]
-    float delta = std::max(std::min(static_cast<float>(event->angleDelta().y()), 10.0f), -10.0f) * 0.01f;
-    mScale *= 1.0 + delta;
-    // 限制范围
-    mScale = std::max(std::min(mScale, 10.0f), 0.1f);
-    mDelta += delta;
-    update();
+    float delta = std::max(std::min(static_cast<float>(event->angleDelta().y()), 10.0f), -10.0f);
+    // 缩放
+    // updateRule();
 }
 
 void DividingRule::resizeEvent(QResizeEvent *event) {
-    int k = 0;
-    int i_size = (this->width() / showSize);
-    rectList.clear();
-    for (int i = 0; i < 100; i++) { // 创建100个数字
-        QRect rect(k, 3, 1, 10);
-        rectList.append(rect);
-        k = k + i_size;
+    // updateRule();
+}
+
+void DividingRule::updateRule() {
+    DMTime maxTime = mDuration + 5000;
+    int oneSecondNoScaleStep = 50; // 1s不缩放步长
+
+    int ruleNum = maxTime / 1000 + 1;
+    mRuleScaleInfos.clear();
+    mRuleScaleInfos.reserve(ruleNum);
+    for (int i = 0; i < ruleNum; i++) {
+        int startX = i * oneSecondNoScaleStep;
+        RuleScaleInfo info = {QString("%1s").arg(i), 0, QRect(QPoint(startX, 3), QSize(1, 10))};
+        mRuleScaleInfos.emplace_back(info);
     }
+    update();
 }
 
 } // namespace DM
