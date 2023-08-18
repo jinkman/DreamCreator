@@ -105,6 +105,10 @@ void Player::exportVideo(const std::filesystem::path &path, ProgressRecordFunc r
     const DMFrame totalFrame = timeToFrame(mVideoProperty.duration, mVideoProperty.fps);
     auto oldProgress = getProgress();
 
+    if (std::filesystem::exists(path)) {
+        std::filesystem::remove(path);
+    }
+
     cv::VideoWriter videoWriter(path, 0x31637661, mVideoProperty.fps, cv::Size(mVideoProperty.width, mVideoProperty.height));
     if (!videoWriter.isOpened()) {
         DMLOG << "create " << path.c_str() << " faild";
