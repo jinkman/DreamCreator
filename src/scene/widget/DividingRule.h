@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QList>
 #include "utils/Types.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace DM {
 
@@ -17,6 +18,16 @@ public:
 
     void setDuration(const DMTime &v);
 
+    void setCurentTime(const DMTime &v);
+
+    // 坐标刻度信息
+    struct RuleScaleInfo {
+        /* data */
+        QString text = "";         // 展示内容
+        DMTime time = 0;           // 时间
+        QRect rect = {0, 0, 0, 0}; // 位置
+    };
+
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *event) override;
@@ -25,18 +36,19 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual void resizeEvent(QResizeEvent *event) override;
 
+    // 更新坐标尺
+    void updateRule();
+
 private:
-    // 缩放值
-    float mScale = 1.0f;
-    QList<QRect> rectList;
-    int showSize = 20; // 页面显示20位
-    QPoint m_clickPoint;
+    // 拖拽
+    QPoint m_clickPoint = {0, 0};
     bool m_bClick = false;
     // 总时长
-    DMTime mDuration = 0;
-
-    // 影响项:1.中心点影响缩放;2.mDuration影响总长度;3.缩放值为1.0刚好放下mDuration;
-    float mDelta = 0.0f; // 控制放大缩小
+    DMTime mDuration = 0;    // 总时长
+    DMTime mCurrentTime = 0; // 当前时间戳
+    int mCurrentPos = 0;     // 当前中心点位置
+    // 刻度尺内容
+    std::vector<RuleScaleInfo> mRuleScaleInfos;
 };
 
 } // namespace DM
