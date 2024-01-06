@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_compile_options(-Wno-nonportable-include-path)
 
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -33,8 +32,8 @@ find_package(glm REQUIRED)
 set(OpenCV_DIR ${third-party-path}/opencv/deploy/lib/cmake/opencv5)
 find_package(OpenCV COMPONENTS opencv_core opencv_video opencv_videoio opencv_highgui REQUIRED)
 
-
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 # 添加头文件
 list(APPEND INCLUDES_DIR ${SRC_DIR}/)
 list(APPEND INCLUDES_DIR ${SRC_DIR}/common)
@@ -54,7 +53,6 @@ add_executable(${PRO_NAME}
     ${SRC_CPP}
     ${SRC_H}
 )
-
 
 target_include_directories(${PRO_NAME}
     PUBLIC
