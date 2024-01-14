@@ -57,4 +57,11 @@ void ImageLayer::updateImageData(uint8_t *data, const int &wid, const int &hei,
     updateBoundBox(Rect::MakeWH(texture.width, texture.height));
 }
 
+void ImageLayer::releaseResources() {
+    Layer::releaseResources();
+    if (texture) {
+        GLUtils::Get()->deleteTexture(texture);
+    }
+}
+
 } // namespace DM

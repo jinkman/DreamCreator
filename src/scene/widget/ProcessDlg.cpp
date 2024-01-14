@@ -41,16 +41,16 @@ void ProgressDlg::setupLayout() {
     progressBar = new QProgressBar(this);
     // 设置样式
     progressBar->setStyleSheet(QString("QProgressBar::chunk{\n"
-                                       "    border-radius:11px;\n"
-                                       "    background:qlineargradient(spread:pad,x1:0,y1:0,x2:1,y2:0,stop:0 #01FAFF,stop:1 #26B4FF);\n"
+                                       "    border-radius: 8px;\n"
+                                       "    background: qlineargradient(spread:pad,x1:0,y1:0,x2:1,y2:0,stop:0 #01FAFF,stop:1 #26B4FF);\n"
                                        "}\n"
                                        "QProgressBar{\n"
-                                       "    height:22px;\n"
-                                       "    text-align:center;\n"
-                                       "    font-size:14px;\n"
-                                       "    color:white;\n"
-                                       "    border-radius:11px;\n"
-                                       "    background:#1D5573;\n"
+                                       "    height: 22px;\n"
+                                       "    text-align: center;\n"
+                                       "    font-size: 14px;\n"
+                                       "    color: white;\n"
+                                       "    border-radius: 8px;\n"
+                                       "    background: #1D5573;\n"
                                        "}\n"));
 
     progressBar->setRange(0, 100);
@@ -61,6 +61,12 @@ void ProgressDlg::setupLayout() {
 
     stopBtn = new QPushButton(this);
     stopBtn->setText(tr("Stop"));
+    stopBtn->setFixedSize(100, 30);
+    stopBtn->setStyleSheet(QString("QPushButton{\n"
+                                   "   border-radius: 10;\n"
+                                   "   color: rgb(255, 255, 255);\n"
+                                   "   background-color: rgb(40, 40, 40);\n"
+                                   "}\n"));
 
     hBoxLayout0->addStretch();
     hBoxLayout0->addWidget(stopBtn);

@@ -17,8 +17,12 @@ public:
 
     QVBoxLayout *getLayout();
 
+    virtual void closeScene();
+
 protected:
     void setupWindow();
+
+    void paintEvent(QPaintEvent *) override;
 
 private:
     QLabel *mTitleWidget = nullptr;

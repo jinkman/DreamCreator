@@ -18,17 +18,15 @@ public:
 
     void exportVideo(const std::filesystem::path &path);
 
-    std::shared_ptr<Player> getScenePlayer();
-
-    void setContentSize(QSize size);
+    Player *getScenePlayer();
 
 protected:
     // 3.重载相关虚函数
-    virtual void initializeGL();
+    virtual void initializeGL() override;
 
-    virtual void resizeGL(int w, int h);
+    virtual void resizeGL(int w, int h) override;
 
-    virtual void paintGL();
+    virtual void paintGL() override;
 
 private:
     // player

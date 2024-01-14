@@ -95,16 +95,16 @@ void GLUtils::deleteTexture(GLTexture &texture) {
     texture = {0, 0, 0, GL_RGBA};
 }
 
-void GLUtils::cleanColor(const unsigned int &fbo, const GLColor &clr) {
+void GLUtils::cleanColor(const GLColor &clr) {
     glClearColor(clr.r, clr.g, clr.b, clr.a);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void GLUtils::renderQuadInternal(const Rect &boundBox) {
     float quadVertices[] = {
-        boundBox.left, boundBox.bottom, 0.0f, 0.0f, 1.0f, boundBox.left, boundBox.top, 0.0f, 0.0f, 0.0f,
-        boundBox.right, boundBox.top, 0.0f, 1.0f, 0.0f, boundBox.left, boundBox.bottom, 0.0f, 0.0f, 1.0f,
-        boundBox.right, boundBox.top, 0.0f, 1.0f, 0.0f, boundBox.right, boundBox.bottom, 0.0f, 1.0f, 1.0f};
+        boundBox.left, boundBox.bottom, 0.0f, 1.0f, boundBox.left, boundBox.top, 0.0f, 0.0f,
+        boundBox.right, boundBox.top, 1.0f, 0.0f, boundBox.left, boundBox.bottom, 0.0f, 1.0f,
+        boundBox.right, boundBox.top, 1.0f, 0.0f, boundBox.right, boundBox.bottom, 1.0f, 1.0f};
 
     if (quadVAO == 0) {
         glGenVertexArrays(1, &quadVAO);
@@ -113,9 +113,9 @@ void GLUtils::renderQuadInternal(const Rect &boundBox) {
         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_DYNAMIC_DRAW);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
     } else {
         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_DYNAMIC_DRAW);
@@ -127,7 +127,7 @@ void GLUtils::renderQuadInternal(const Rect &boundBox) {
 }
 
 void GLUtils::setViewPort(const Rect &vp) {
-    glViewport(vp.left, vp.top, vp.right, vp.bottom);
+    glViewport(vp.left, vp.top, vp.width(), vp.height());
 }
 
 GLFrameBuffer GLUtils::createFrameBuffer(const int &wid, const int &hei, const int &nChannle) {
@@ -153,11 +153,28 @@ void GLUtils::deleteFrameBuffer(GLFrameBuffer &fbo) {
 }
 
 void GLUtils::bindFrameBuffer(const GLFrameBuffer &fbo) {
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo.fboId);
+    bindFrameBuffer(fbo.fboId);
+}
+
+void GLUtils::bindFrameBuffer(const unsigned int &fboid) {
+    glBindFramebuffer(GL_FRAMEBUFFER, fboid);
 }
 
 void GLUtils::readPixels(const GLFrameBuffer &fbo, unsigned char *dstData) {
+    bindFrameBuffer(fbo);
     glReadPixels(0, 0, fbo.width, fbo.height, fbo.tex.format, GL_UNSIGNED_BYTE, dstData);
+}
+
+int GLUtils::getBindFboId() {
+    int fbo = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+    return fbo;
+}
+
+Rect GLUtils::getCurrentViewPort() {
+    int viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    return Rect::MakeXYWH(float(viewport[0]), float(viewport[1]), float(viewport[2]), float(viewport[3]));
 }
 
 } // namespace DM

@@ -95,4 +95,11 @@ int CompositionLayer::numberChildren() const {
     return static_cast<int>(mLayers.size());
 }
 
+void CompositionLayer::releaseResources() {
+    Layer::releaseResources();
+    for (auto &ly : mLayers) {
+        ly->releaseResources();
+    }
+}
+
 } // namespace DM

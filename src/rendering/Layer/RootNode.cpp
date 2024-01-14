@@ -33,6 +33,7 @@ std::shared_ptr<RootNode> RootNode::creatRootNodeByJson(const nlohmann::json &ob
 }
 
 RootNode::~RootNode() {
+    mRootCom->releaseResources();
 }
 
 RootNode::RootNode(const nlohmann::json &obj) {
@@ -42,9 +43,8 @@ RootNode::RootNode(const nlohmann::json &obj) {
     if (obj.contains("backgroundColor")) {
         mBgColor = GLColor::deserialization(obj["backgroundColor"]);
     }
-    // 初始化着色器
-    initShaders();
     mRootCom = CompositionLayer::creatCompositionLayerByJson(obj, *this);
+    initialize();
 }
 
 void RootNode::draw() {
@@ -86,8 +86,14 @@ std::filesystem::path RootNode::getRootPath() const {
 }
 
 void RootNode::preDraw() {
-    // 设置窗口颜色
-    GLUtils::Get()->cleanColor(0, mBgColor);
+    mImageShader->use();
+    mImageShader->setBool("bFlipY", false);
+    mImageShader->setMat4("projection", glm::ortho(0.0f, float(width()), 0.0f, float(height())));
+    mImageShader->setMat4("model", glm::mat4(1.0f));
+    mImageShader->unUse();
+    GLUtils::Get()->setViewPort(Rect::MakeWH(float(width()), float(height())));
+    // 设置窗口颜色;
+    GLUtils::Get()->cleanColor(mBgColor);
     mRootCom->preDraw();
 }
 
@@ -95,14 +101,9 @@ void RootNode::postDraw() {
     mRootCom->postDraw();
 }
 
-void RootNode::initShaders() {
-    if (mImageShader == nullptr) {
-        mImageShader = std::make_shared<Shader>(getLocalPath("shaders/ImageLayer.vert").c_str(), getLocalPath("shaders/ImageLayer.frag").c_str());
-        mImageShader->use();
-        mImageShader->setMat4("projection", glm::ortho(0.0f, float(width()), 0.0f, float(height()), -100.0f, 100.0f));
-        mImageShader->setMat4("model", glm::mat4(1.0f));
-        mImageShader->unUse();
-    }
+void RootNode::initialize() {
+    GLUtils::Get();
+    mImageShader = std::make_shared<Shader>(getLocalPath("shaders/ImageLayer.vert").c_str(), getLocalPath("shaders/ImageLayer.frag").c_str());
 }
 
 } // namespace DM

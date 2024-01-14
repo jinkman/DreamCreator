@@ -1,6 +1,6 @@
 #include "OpenGLWidget.h"
 #include <QMessageBox>
-#include "scene/ProcessDlg.h"
+#include "scene/widget/ProcessDlg.h"
 #include <QCoreApplication>
 
 namespace DM {
@@ -31,8 +31,6 @@ void OpenGLWidget::initSceneByFile(const QString &jstr) {
         return;
     }
     mPlayer = Player::createPlayerByJson(obj, filePath.parent_path());
-    setMinimumSize(300, 300);
-    setMaximumSize(mPlayer->getVideoInfo().width, mPlayer->getVideoInfo().height);
 }
 
 void OpenGLWidget::closeScene() {
@@ -57,16 +55,8 @@ void OpenGLWidget::exportVideo(const std::filesystem::path &path) {
     delete progressDlg;
 }
 
-std::shared_ptr<Player> OpenGLWidget::getScenePlayer() {
-    return mPlayer;
-}
-
-void OpenGLWidget::setContentSize(QSize size) {
-    float scaleX = float(size.width()) / float(mPlayer->getVideoInfo().width);
-    float scaleY = float(size.height()) / float(mPlayer->getVideoInfo().height);
-    // 黑边处理
-    float scaleV = scaleX < scaleY ? scaleX : scaleY;
-    this->setFixedSize(scaleV * mPlayer->getVideoInfo().width, scaleV * mPlayer->getVideoInfo().height);
+Player *OpenGLWidget::getScenePlayer() {
+    return mPlayer.get();
 }
 
 void OpenGLWidget::initializeGL() {
@@ -79,6 +69,8 @@ void OpenGLWidget::resizeGL(int w, int h) {
 
 void OpenGLWidget::paintGL() {
     // 绘制
+    GLUtils::Get()->bindFrameBuffer(defaultFramebufferObject());
+    GLUtils::Get()->cleanColor({27.0f / 255.0f, 27.0f / 255.0f, 28.0f / 255.0f, 1.0f});
     if (mPlayer && mPlayer->isValid()) {
         mPlayer->flush();
     }

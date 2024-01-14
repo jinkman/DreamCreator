@@ -28,6 +28,8 @@ public:
 
     std::filesystem::path getRootPath() const;
 
+    void initialize();
+
 protected:
     RootNode(const nlohmann::json &obj);
 
@@ -35,8 +37,6 @@ private:
     void preDraw();
 
     void postDraw();
-
-    void initShaders();
 
 private:
     unsigned int mWidth = 0;

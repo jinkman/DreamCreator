@@ -48,7 +48,7 @@ glm::mat4 Layer::getLayerMatrix() {
     matrix = glm::mat4_cast(orientation()) * matrix;
     matrix = glm::translate(glm::mat4(1.0f), centerPt) * matrix;
     // 缩放模式
-    matrix = ApplyScaleMode(mScaleMode, getBoundBox().width(), getBoundBox().height(), getRootNode().width(), getRootNode().height()) * matrix;
+    matrix = Layer::ApplyScaleMode(mScaleMode, getBoundBox().width(), getBoundBox().height(), getRootNode().width(), getRootNode().height()) * matrix;
     // 位移
     matrix = glm::translate(glm::mat4(1.0f), translate()) * matrix;
     return matrix;
@@ -118,6 +118,9 @@ glm::mat4 Layer::ApplyScaleMode(int scaleMode, int sourceWidth, int sourceHeight
     } break;
     }
     return matrix;
+}
+
+void Layer::releaseResources() {
 }
 
 } // namespace DM

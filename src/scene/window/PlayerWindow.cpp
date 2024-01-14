@@ -1,48 +1,48 @@
-#include "VideoPlayer.h"
-#include <QProgressBar>
+#include "PlayerWindow.h"
 #include <QMessageBox>
-#include <QFileDialog>
-#include <QPalette>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include "common/Common.h"
 #include <QResizeEvent>
+#include <QFileDialog>
+#include "scene/widget/ProcessDlg.h"
+#include "common/Common.h"
 
 namespace DM {
 
-VideoPlayer::VideoPlayer(QWidget *parent) :
+PlayerWindow::PlayerWindow(QWidget *parent) :
     ContentWindow(parent) {
     setupTitle();
 
     setupPlayer();
 
     setupBottomWgt();
+    getLayout()->setContentsMargins(3, 6, 3, 3);
 }
 
-VideoPlayer::~VideoPlayer() {
+PlayerWindow::~PlayerWindow() {
 }
 
-void VideoPlayer::initSceneByFile(const QString &str) {
+void PlayerWindow::initSceneByFile(const QString &str) {
     mOpenGLWgt->initSceneByFile(str);
-    mOpenGLWgt->setContentSize(mHCenterWgt->size());
     // 设置总时长
     setTimeToLabel(mLabelTotolTime, mOpenGLWgt->getScenePlayer()->duration());
+    setTimeToLabel(mLabelPlayTime, 0);
     // 播放
     mTimerStep = 1000.0f / mOpenGLWgt->getScenePlayer()->getVideoInfo().fps;
     if (mTimer == nullptr) {
         mTimer = new QTimer(this);
-        connect(mTimer, SIGNAL(timeout()), this, SLOT(flushOneFrame()));
+        connect(mTimer, SIGNAL(timeout()), this, SLOT(flushNextFrame()));
     }
 }
 
-void VideoPlayer::resetScene() {
+void PlayerWindow::closeScene() {
     if (mTimer->isActive()) {
         mTimer->stop();
     }
     mOpenGLWgt->closeScene();
+    setTimeToLabel(mLabelTotolTime, 0);
+    setTimeToLabel(mLabelPlayTime, 0);
 }
 
-void VideoPlayer::setupTitle() {
+void PlayerWindow::setupTitle() {
     auto titleLabel = getTitleWidget();
 
     QHBoxLayout *layout = new QHBoxLayout(titleLabel);
@@ -74,37 +74,17 @@ void VideoPlayer::setupTitle() {
     titleLabel->setLayout(layout);
 }
 
-void VideoPlayer::setupPlayer() {
+void PlayerWindow::setupPlayer() {
     mOpenGLWgt = new OpenGLWidget(this);
-    // 水平垂直居中
-    mHCenterWgt = new QWidget(this);
-    mHCenterWgt->setMinimumSize(300, 300);
-    mHCenterWgt->setStyleSheet(QString("QWidget{\n"
-                                       "    background-color:rgb(27, 27, 28);\n"
-                                       "}"));
-    QHBoxLayout *hLayout = new QHBoxLayout(mHCenterWgt);
-    QWidget *vCenterWgt = new QWidget(mHCenterWgt);
-    QVBoxLayout *vLayout = new QVBoxLayout(vCenterWgt);
-    // 水平
-    vLayout->setContentsMargins(0, 0, 0, 0);
-    vLayout->addStretch();
-    vLayout->addWidget(mOpenGLWgt);
-    vLayout->addStretch();
-    // 垂直
-    hLayout->setContentsMargins(0, 0, 0, 0);
-    hLayout->addStretch();
-    hLayout->addWidget(vCenterWgt);
-    hLayout->addStretch();
-    auto mainLayout = getLayout();
-    mainLayout->setContentsMargins(0, 7, 0, 0);
-    mainLayout->addWidget(mHCenterWgt);
+    mOpenGLWgt->setMinimumSize(300, 300);
+    getLayout()->addWidget(mOpenGLWgt);
 }
 
-void VideoPlayer::setupBottomWgt() {
+void PlayerWindow::setupBottomWgt() {
     // 放置播放按钮相关
     QLabel *bottomLabel = new QLabel(this);
-    bottomLabel->setMinimumSize(300, 40);
-    bottomLabel->setMaximumHeight(40);
+    bottomLabel->setMinimumWidth(300);
+    bottomLabel->setFixedHeight(40);
     QHBoxLayout *layout = new QHBoxLayout(bottomLabel);
     bottomLabel->setContentsMargins(0, 0, 0, 0);
     bottomLabel->setStyleSheet(QString("QLabel{\n"
@@ -129,39 +109,38 @@ void VideoPlayer::setupBottomWgt() {
                                            "}"));
     mLabelTotolTime->setFixedSize(70, 20);
     // 播放按钮
-    QPushButton *btn = new QPushButton(bottomLabel);
-    btn->setStyleSheet(QString("QPushButton{\n"
-                               "    background:transparent;\n"
-                               "}\n"));
-    btn->setFixedSize(20, 20);
-    btn->setIcon(QIcon(getQLocalPath("icon/play.png")));
-    connect(btn, &QPushButton::clicked, this, [=]() {
-        btn->setIcon(QIcon(mTimer->isActive() ? getQLocalPath("icon/play.png") : getQLocalPath("icon/pause.png")));
+    mPlayBtn = new QPushButton(bottomLabel);
+    mPlayBtn->setStyleSheet(QString("QPushButton{\n"
+                                    "    background:transparent;\n"
+                                    "}\n"));
+    mPlayBtn->setFixedSize(20, 20);
+    mPlayBtn->setIcon(QIcon(getQLocalPath("icon/play.png")));
+    connect(mPlayBtn, &QPushButton::clicked, this, [=]() {
+        mPlayBtn->setIcon(QIcon(mTimer->isActive() ? getQLocalPath("icon/play.png") : getQLocalPath("icon/pause.png")));
         mTimer->isActive() ? mTimer->stop() : mTimer->start(mTimerStep);
     });
 
     layout->addWidget(mLabelPlayTime);
     layout->addWidget(mLabelTotolTime);
-    layout->addWidget(btn);
+    layout->addWidget(mPlayBtn);
     layout->addStretch();
     bottomLabel->setLayout(layout);
 
-    auto mainLayout = getLayout();
-    mainLayout->addWidget(bottomLabel);
+    getLayout()->addWidget(bottomLabel);
 }
 
-void VideoPlayer::saveFile() {
+void PlayerWindow::saveFile() {
     QMessageBox::about(this, tr("About saveFile"), "saveFile");
 }
 
-void VideoPlayer::exportFile() {
+void PlayerWindow::exportFile() {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Export Video"), "", tr("Video (*.mp4)"));
     if (!fileName.isEmpty()) {
         mOpenGLWgt->exportVideo(fileName.toStdString());
     }
 }
 
-void VideoPlayer::setTimeToLabel(QLabel *label, DMTime t) {
+void PlayerWindow::setTimeToLabel(QLabel *label, DMTime t) {
     int hours = t / 3600000;
     int minutes = (t % 3600000) / 60000;
     int seconds = (t % 60000) / 1000;
@@ -169,13 +148,7 @@ void VideoPlayer::setTimeToLabel(QLabel *label, DMTime t) {
     label->setText(QString("%1:%2:%3:%4").arg(hours, 2, 10, QLatin1Char('0')).arg(minutes, 2, 10, QLatin1Char('0')).arg(seconds, 2, 10, QLatin1Char('0')).arg(mSeconds, 3, 10, QLatin1Char('0')));
 }
 
-void VideoPlayer::resizeEvent(QResizeEvent *event) {
-    if (mOpenGLWgt && mOpenGLWgt->getScenePlayer() && mHCenterWgt) {
-        mOpenGLWgt->setContentSize(mHCenterWgt->size());
-    }
-}
-
-void VideoPlayer::flushOneFrame() {
+void PlayerWindow::flushNextFrame() {
     auto scenePlayer = mOpenGLWgt->getScenePlayer();
     if (scenePlayer == nullptr) {
         return;

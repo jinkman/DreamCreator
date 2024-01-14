@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include "window/ContentWindow.h"
-#include "widget/VideoPlayer.h"
 
 namespace DM {
 class EditorWindow : public QMainWindow {
@@ -21,14 +20,6 @@ signals:
     void closeSignal();
 
 private:
-    void setupContentWgt();
-
-    void setupPlayerWgt();
-
-    void setupPropertyWgt();
-
-    void setupTrackWgt();
-
     // 初始化菜单栏
     void setupMenuBar();
 
@@ -39,12 +30,7 @@ private:
 
 private:
     // 内容、播放器、属性、轨道
-    ContentWindow *mContentWgt = nullptr;
-    VideoPlayer *mVideoPlayer = nullptr;
-    ContentWindow *mPropertyWidget = nullptr;
-    ContentWindow *mTrackEditor = nullptr;
-
-    // 重新实现
+    std::map<QString, ContentWindow *> mWindowMap;
 };
 
 } // namespace DM

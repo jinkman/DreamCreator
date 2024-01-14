@@ -11,8 +11,6 @@ std::shared_ptr<Player> Player::createPlayerByJson(const nlohmann::json &obj, co
 
 Player::Player(const nlohmann::json &obj, const std::filesystem::path &path) {
     mVideoProperty = VideoProperty::deserialization(obj["videoProperty"]);
-    mScreenFbo.width = mVideoProperty.width;
-    mScreenFbo.height = mVideoProperty.height;
     // 数据
     auto jRoot = nlohmann::json::object();
     jRoot["width"] = mVideoProperty.width;
@@ -25,10 +23,11 @@ Player::Player(const nlohmann::json &obj, const std::filesystem::path &path) {
     for (auto &trackObj : obj["trackInfo"]) {
         mTracks.push_back(Track::createTrackByJson(trackObj, rtNode));
     }
+    initialize();
 }
 
 Player::~Player() {
-    rtNode = nullptr;
+    GLUtils::Get()->deleteFrameBuffer(mOffScreenFbo);
 }
 
 void Player::setProgress(float v) {
@@ -43,12 +42,23 @@ void Player::flush() {
     if (!isValid()) {
         return;
     }
-    // 更新
-    auto cTime = currentTime();
-    for (auto track : mTracks) {
-        track->flush(cTime);
-    }
-    rtNode->draw();
+    // 离屏渲染
+    auto oldViewPort = GLUtils::Get()->getCurrentViewPort();
+    auto oldFbo = GLUtils::Get()->getBindFboId();
+    GLUtils::Get()->bindFrameBuffer(mOffScreenFbo);
+    // 绘制
+    flushInternal();
+    // 上屏
+    GLUtils::Get()->bindFrameBuffer(oldFbo);
+    GLUtils::Get()->setViewPort(oldViewPort);
+    auto imageShader = rtNode->getImageShader();
+    imageShader->use();
+    imageShader->setTexture("tex", 0, mOffScreenFbo.tex.id);
+    imageShader->setBool("bFlipY", true);
+    imageShader->setMat4("projection", glm::ortho(0.0f, oldViewPort.width(), 0.0f, oldViewPort.height()));
+    imageShader->setMat4("model", Layer::ApplyScaleMode(DMScaleMode::LetterBox, mOffScreenFbo.width, mOffScreenFbo.height, oldViewPort.width(), oldViewPort.height()));
+    GLUtils::Get()->renderQuadInternal(Rect::MakeWH(mOffScreenFbo.width, mOffScreenFbo.height));
+    imageShader->unUse();
 }
 
 DMTime Player::duration() const {
@@ -93,7 +103,7 @@ VideoProperty Player::getVideoInfo() const {
 }
 
 bool Player::isValid() const {
-    return rtNode != nullptr;
+    return rtNode != nullptr && mOffScreenFbo.isValid();
 }
 
 std::filesystem::path Player::getRootPath() const {
@@ -115,20 +125,17 @@ void Player::exportVideo(const std::filesystem::path &path, ProgressRecordFunc r
         return;
     }
 
-    std::vector<unsigned char> recordData;
-    recordData.resize(mVideoProperty.width * mVideoProperty.height * 3, 255);
-    auto offsetScreenFbo = GLUtils::Get()->createFrameBuffer(mVideoProperty.width, mVideoProperty.height, 3);
     cv::Mat frame(mVideoProperty.height, mVideoProperty.width, CV_8UC3);
+    // 获取默认缓冲
+    auto oldFboId = GLUtils::Get()->getBindFboId();
     for (DMFrame frameIndex = 0; frameIndex < totalFrame; frameIndex++) {
-        GLUtils::Get()->bindFrameBuffer(offsetScreenFbo);
+        GLUtils::Get()->bindFrameBuffer(mOffScreenFbo);
         GLUtils::Get()->setViewPort(Rect::MakeWH(mVideoProperty.width, mVideoProperty.height));
         float progress = static_cast<float>(frameIndex) / static_cast<float>(totalFrame);
         setProgress(progress);
-        flush();
-        GLUtils::Get()->readPixels(offsetScreenFbo, recordData.data());
-        memcpy(frame.data, recordData.data(), recordData.size() * sizeof(unsigned char));
+        flushInternal();
+        GLUtils::Get()->readPixels(mOffScreenFbo, frame.data);
         cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-        cv::flip(frame, frame, 0);
         videoWriter.write(frame);
         if (!recordFunc(progress)) { // 用户输入取消
             break;
@@ -137,9 +144,21 @@ void Player::exportVideo(const std::filesystem::path &path, ProgressRecordFunc r
     videoWriter.release();
     recordFunc(1.0f);
     // 取消绑定
-    GLUtils::Get()->deleteFrameBuffer(offsetScreenFbo);
-    GLUtils::Get()->bindFrameBuffer(mScreenFbo);
+    GLUtils::Get()->bindFrameBuffer(oldFboId);
     setProgress(oldProgress);
+}
+
+void Player::initialize() {
+    mOffScreenFbo = GLUtils::Get()->createFrameBuffer(mVideoProperty.width, mVideoProperty.height, 3);
+}
+
+void Player::flushInternal() {
+    // 更新
+    auto cTime = currentTime();
+    for (auto track : mTracks) {
+        track->flush(cTime);
+    }
+    rtNode->draw();
 }
 
 } // namespace DM

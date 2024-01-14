@@ -24,6 +24,8 @@ public:
 protected:
     ImageLayer(const nlohmann::json &obj, RootNode &rootNode);
 
+    virtual void releaseResources() override;
+
     std::string mImagePath = "";
 
     GLTexture texture;

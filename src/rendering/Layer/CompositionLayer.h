@@ -5,6 +5,8 @@
 #include <vector>
 
 namespace DM {
+
+class RootNode;
 class CompositionLayer : public Layer {
 public:
     static std::shared_ptr<CompositionLayer> creatCompositionLayerByJson(const nlohmann::json &obj, RootNode &rootNode);
@@ -37,8 +39,12 @@ public:
 protected:
     CompositionLayer(const nlohmann::json &obj, RootNode &rootNode);
 
+    virtual void releaseResources() override;
+
 private:
     std::vector<std::shared_ptr<Layer>> mLayers;
+
+    friend class RootNode;
 };
 
 } // namespace DM

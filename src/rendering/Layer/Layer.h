@@ -19,6 +19,9 @@ enum class ELayerType {
 class RootNode;
 class Layer {
 public:
+    static glm::mat4 ApplyScaleMode(int scaleMode, int sourceWidth, int sourceHeight,
+                                    int targetWidth, int targetHeight);
+
     virtual ~Layer();
 
     virtual void drawInternal() = 0;
@@ -48,8 +51,7 @@ public:
 protected:
     Layer(const nlohmann::json &obj, RootNode &rootNode);
 
-    glm::mat4 ApplyScaleMode(int scaleMode, int sourceWidth, int sourceHeight,
-                             int targetWidth, int targetHeight);
+    virtual void releaseResources();
 
     ELayerType mType = ELayerType::EUNKNOW;
 
@@ -65,6 +67,8 @@ private:
     bool bVisible = true;
 
     RootNode &mRootNode;
+
+    friend class CompositionLayer;
 };
 
 } // namespace DM

@@ -61,8 +61,12 @@ public:
 
     void exportVideo(const std::filesystem::path &path, ProgressRecordFunc recordFunc);
 
+    void initialize();
+
 protected:
     Player(const nlohmann::json &obj, const std::filesystem::path &path);
+
+    void flushInternal();
 
 private:
     float mProgress = 0.0f;
@@ -73,7 +77,7 @@ private:
     // 时长信息
     VideoProperty mVideoProperty;
 
-    GLFrameBuffer mScreenFbo;
+    GLFrameBuffer mOffScreenFbo;
 };
 
 } // namespace DM

@@ -22,6 +22,10 @@ struct GLFrameBuffer {
     unsigned int fboId = 0;
     int width = 0;
     int height = 0;
+
+    bool isValid() const {
+        return width != 0 && height != 0;
+    }
 };
 
 // 2.继承相关类
@@ -38,7 +42,7 @@ public:
 
     void deleteTexture(GLTexture &texture);
 
-    void cleanColor(const unsigned int &fbo, const GLColor &clr);
+    void cleanColor(const GLColor &clr);
 
     void renderQuadInternal(const Rect &boundBox);
 
@@ -50,7 +54,13 @@ public:
 
     void bindFrameBuffer(const GLFrameBuffer &fbo);
 
+    void bindFrameBuffer(const unsigned int &fboid);
+
     void readPixels(const GLFrameBuffer &fbo, unsigned char *dstData);
+
+    int getBindFboId();
+
+    Rect getCurrentViewPort();
 
     ~GLUtils();
 
@@ -62,6 +72,8 @@ protected:
 private:
     unsigned int quadVAO = 0;
     unsigned int quadVBO = 0;
+    unsigned int quadVAOSync = 0;
+    unsigned int quadVBOSync = 0;
 };
 
 } // namespace DM

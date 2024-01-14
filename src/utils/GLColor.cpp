@@ -11,8 +11,7 @@ nlohmann::json GLColor::serialization() {
 }
 
 GLColor::GLColor(float red, float green, float blue, float alpha) :
-    r(red),
-    g(green), b(blue), a(alpha) {
+    r(red), g(green), b(blue), a(alpha) {
 }
 
 GLColor::GLColor(float red, float green, float blue) :
