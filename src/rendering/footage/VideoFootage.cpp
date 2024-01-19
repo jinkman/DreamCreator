@@ -9,13 +9,15 @@ std::shared_ptr<Footage> VideoFootage::createVideoFootageByJson(const nlohmann::
 }
 
 VideoFootage::VideoFootage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode) :
-    Footage(obj, rtNode) { // 解析
+    Footage(obj, rtNode) {
+    // 解析
+    mFootageType = EFootageType::EVIDEO_FOOTAGE;
     mResStartTime = obj["resStartTime"].get<DMTime>();
     mResEndTime = obj["resEndTime"].get<DMTime>();
     if (obj.contains("transform")) {
         mLayerTransform = obj["transform"];
     }
-}
+} // namespace DM
 
 VideoFootage::~VideoFootage() {
 }
@@ -52,8 +54,10 @@ void VideoFootage::flush(DMTime t) {
 }
 
 void VideoFootage::updateResources(const std::string &path) {
-    std::string realPath = mRootNode == nullptr ? path : mRootNode->getRealFilePath(path);
-    mVideoCap.open(realPath);
+    Footage::updateResources(path);
+
+    std::string localPath = getResourcesLocalPath();
+    mVideoCap.open(localPath);
     if (!mVideoCap.isOpened()) {
         return;
     }
@@ -70,6 +74,14 @@ void VideoFootage::updateResources(const std::string &path) {
         mImageLayer = ImageLayer::creatImageLayerByJson(layerJson, *mRootNode);
         mRootNode->getRootComposition()->addLayer(mImageLayer);
     }
+}
+
+DMTime VideoFootage::getResStartTime() const {
+    return mResStartTime;
+}
+
+DMTime VideoFootage::getResEndTime() const {
+    return mResEndTime;
 }
 
 } // namespace DM

@@ -8,7 +8,7 @@
 #include "DividingRule.h"
 // #include "rendering/footage/PAGFootage.h"
 // #include "rendering/footage/ImageFootage.h"
-// #include "rendering/footage/VideoFootage.h"
+#include "rendering/footage/VideoFootage.h"
 
 namespace DM {
 
@@ -63,26 +63,26 @@ FootageWidget::~FootageWidget() {
 }
 
 void FootageWidget::updateFootage(std::shared_ptr<Footage> footage) {
-    // mFootage = footage;
-    // int totalWidth = std::ceil(mFootage->duration() / 1000.0f * oneSecondNoScaleStep);
-    // this->setFixedWidth(totalWidth);
-    // auto remoteUrl = mFootage->getResourcesRealPath();
-    // // 提示内容
-    // this->setToolTip(QString::fromStdString(remoteUrl));
-    // switch (mFootage->getFootageType()) {
-    // case EFootageType::EIMAGE_FOOTAGE:
-    //     setupImageFootage(mFootage);
-    //     break;
-    // case EFootageType::EPAG_FOOTAGE:
-    //     setupSubtitleFootage(mFootage);
-    //     break;
-    // case EFootageType::EVIDEO_FOOTAGE:
-    //     setupVideoFootage(mFootage);
-    //     break;
+    mFootage = footage;
+    int totalWidth = std::ceil(mFootage->duration() / 1000.0f * oneSecondNoScaleStep);
+    this->setFixedWidth(totalWidth);
+    auto remoteUrl = mFootage->getResourcesOriginPath();
+    // 提示内容
+    this->setToolTip(QString::fromStdString(remoteUrl));
+    switch (mFootage->getFootageType()) {
+    case EFootageType::EIMAGE_FOOTAGE:
+        setupImageFootage(mFootage);
+        break;
+    case EFootageType::EPAG_FOOTAGE:
+        setupSubtitleFootage(mFootage);
+        break;
+    case EFootageType::EVIDEO_FOOTAGE:
+        setupVideoFootage(mFootage);
+        break;
 
-    // default:
-    //     break;
-    // }
+    default:
+        break;
+    }
 }
 
 std::shared_ptr<Footage> FootageWidget::getFootage() {
@@ -128,51 +128,51 @@ void FootageWidget::setupImageFootage(std::shared_ptr<Footage> footage) {
 
 void FootageWidget::setupVideoFootage(std::shared_ptr<Footage> footage) {
     // 打开视频
-    // auto videoFootage = std::static_pointer_cast<VideoFootage>(footage);
-    // auto localPath = videoFootage->getResourcesLocalPath();
-    // cv::VideoCapture cap(localPath);
-    // if (!cap.isOpened()) {
-    //     // 错误处理
-    //     this->setToolTip("video open error:" + QString::fromStdString(videoFootage->getResourcesRealPath()));
-    //     return;
-    // }
-    // cv::Mat frame;
-    // // 获取视频帧，根据宽高比处理
-    // int footageWid = cap.get(cv::CAP_PROP_FRAME_WIDTH);  // 获取宽度
-    // int footageHei = cap.get(cv::CAP_PROP_FRAME_HEIGHT); // 获取高度
-    // float whRatio = float(footageWid) / float(footageHei);
-    // int oneWidth = std::ceil(oneSecondNoScaleStep * std::min(whRatio, 1.0f));
-    // int num = std::ceil(float(this->width()) / float(oneWidth));
+    auto videoFootage = std::static_pointer_cast<VideoFootage>(footage);
+    auto localPath = videoFootage->getResourcesLocalPath();
+    cv::VideoCapture cap(localPath);
+    if (!cap.isOpened()) {
+        // 错误处理
+        this->setToolTip("video open error:" + QString::fromStdString(videoFootage->getResourcesOriginPath()));
+        return;
+    }
+    cv::Mat frame;
+    // 获取视频帧，根据宽高比处理
+    int footageWid = cap.get(cv::CAP_PROP_FRAME_WIDTH);  // 获取宽度
+    int footageHei = cap.get(cv::CAP_PROP_FRAME_HEIGHT); // 获取高度
+    float whRatio = float(footageWid) / float(footageHei);
+    int oneWidth = std::ceil(oneSecondNoScaleStep * std::min(whRatio, 1.0f));
+    int num = std::ceil(float(this->width()) / float(oneWidth));
 
-    // auto resStartTime = videoFootage->getResStartTime();
-    // auto resEndTime = videoFootage->getResEndTime();
-    // int lastTime = 0;
-    // for (int i = 0; i < num; i++) {
-    //     ImageLabel *label = new ImageLabel(this);
-    //     label->setFixedSize(oneWidth, this->height());
-    //     int offsetWidth = i * oneWidth;
-    //     // 确定时长
-    //     auto offsetTime = resStartTime + (resEndTime - resStartTime) * (float(offsetWidth) / float(this->width()));
-    //     if (lastTime - offsetTime != 0) { // 设置开始帧
-    //         cap.set(cv::CAP_PROP_POS_MSEC, offsetTime);
-    //         lastTime = offsetTime;
-    //     }
-    //     // 读取视频一帧
-    //     cap.read(frame);
+    auto resStartTime = videoFootage->getResStartTime();
+    auto resEndTime = videoFootage->getResEndTime();
+    int lastTime = 0;
+    for (int i = 0; i < num; i++) {
+        ImageLabel *label = new ImageLabel(this);
+        label->setFixedSize(oneWidth, this->height());
+        int offsetWidth = i * oneWidth;
+        // 确定时长
+        auto offsetTime = resStartTime + (resEndTime - resStartTime) * (float(offsetWidth) / float(this->width()));
+        if (lastTime - offsetTime != 0) { // 设置开始帧
+            cap.set(cv::CAP_PROP_POS_MSEC, offsetTime);
+            lastTime = offsetTime;
+        }
+        // 读取视频一帧
+        cap.read(frame);
 
-    //     QImage::Format format = (frame.channels() == 3) ? QImage::Format_RGB888 : QImage::Format_Grayscale8;
-    //     cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB); // 如果是彩色图像，需要从BGR转至RGB
-    //     QImage qImg((uchar *)frame.data, frame.cols, frame.rows, frame.step, format);
-    //     QPixmap pixmap = QPixmap::fromImage(qImg);
-    //     // 重置大小
-    //     pixmap = pixmap.scaled(label->size() * 4, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    //     label->setPixmap(pixmap);
-    //     label->setScaledContents(true);
-    //     label->setAlignment(Qt::AlignCenter);
-    //     mMainLayout->addWidget(label);
-    //     mLabelVec.emplace_back(label);
-    // }
-    // cap.release();
+        QImage::Format format = (frame.channels() == 3) ? QImage::Format_RGB888 : QImage::Format_Grayscale8;
+        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB); // 如果是彩色图像，需要从BGR转至RGB
+        QImage qImg((uchar *)frame.data, frame.cols, frame.rows, frame.step, format);
+        QPixmap pixmap = QPixmap::fromImage(qImg);
+        // 重置大小
+        pixmap = pixmap.scaled(label->size() * 4, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        label->setPixmap(pixmap);
+        label->setScaledContents(true);
+        label->setAlignment(Qt::AlignCenter);
+        mMainLayout->addWidget(label);
+        mLabelVec.emplace_back(label);
+    }
+    cap.release();
 }
 
 void FootageWidget::setupWidget() {

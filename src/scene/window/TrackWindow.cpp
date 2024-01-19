@@ -2,11 +2,11 @@
 #include <QHBoxLayout>
 #include <QToolButton>
 #include <common/Common.h>
-// #include "util/log/QLogUtils.h"
 #include "scene/widget/TrackControllerWidget.h"
 #include "scene/widget/TrackLineWidget.h"
 #include <QSplitter>
 #include <QScrollBar>
+#include "utils/GlobalMsgMgr.h"
 
 namespace DM {
 
@@ -20,6 +20,7 @@ TrackWindow::TrackWindow(QWidget *parent) :
     setupContentLayout();
 
     getLayout()->setContentsMargins(6, 3, 6, 6);
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::initSceneFinished, this, &TrackWindow::updateTrackInfo);
 }
 
 TrackWindow::~TrackWindow() {
@@ -96,40 +97,40 @@ void TrackWindow::setupTitle() {
 void TrackWindow::setupContentLayout() {
 }
 
-void TrackWindow::updateTrackInfo() {
-    // mDividingRule->getRuleWidget()->setDuration(mPlayer->duration());
-    // mTrackControllerManager->clear();
-    // mTrackVisitorManager->clear();
-    // auto tracks = mPlayer->getVideoTracks();
-    // std::vector<QScrollBar *> scrollBarVec = {mDividingRule->horizontalScrollBar()};
-    // for (auto track : tracks) {
-    //     TrackControllerWidget *controllerWgt = new TrackControllerWidget(mTrackControllerManager);
-    //     mTrackControllerManager->getMainLayout()->addWidget(controllerWgt);
-    //     auto trackLineWgt = new TrackLineWidget(track, mDividingRule->widget()->width(), mTrackVisitorManager);
-    //     // 绑定长度
-    //     QObject::connect(mDividingRule, &DividingRule::sceneWidthChangedSignal, trackLineWgt, &TrackLineWidget::updateSceneWidthSlot);
+void TrackWindow::updateTrackInfo(Player *scenePlayer) {
+    mTrackControllerManager->clear();
+    mTrackVisitorManager->clear();
+    if (scenePlayer == nullptr) {
+        return;
+    }
+    auto tracks = scenePlayer->getTracks();
+    std::vector<QScrollBar *> scrollBarVec = {mDividingRule->horizontalScrollBar()};
+    for (auto track : tracks) {
+        TrackControllerWidget *controllerWgt = new TrackControllerWidget(mTrackControllerManager);
+        mTrackControllerManager->getMainLayout()->addWidget(controllerWgt);
+        auto trackLineWgt = new TrackLineWidget(track, mDividingRule->widget()->width(), mTrackVisitorManager);
+        // 绑定长度
+        QObject::connect(mDividingRule, &DividingRule::sceneWidthChangedSignal, trackLineWgt, &TrackLineWidget::updateSceneWidthSlot);
+        // 绑定点击事件
+        // QObject::connect(trackLineWgt, &TrackLineWidget::clickUpFootageSignal, this, &TrackWindow::clickUpFootageSignal);
+        mTrackVisitorManager->getMainLayout()->addWidget(trackLineWgt);
+        scrollBarVec.push_back(trackLineWgt->horizontalScrollBar());
+    }
+    mTrackControllerManager->getMainLayout()->addStretch();
+    mTrackVisitorManager->getMainLayout()->addStretch();
+    mTrackControllerManager->resetScrollValue();
+    mTrackVisitorManager->resetScrollValue();
 
-    //     // 绑定点击事件
-    //     QObject::connect(trackLineWgt, &TrackLineWidget::clickUpFootageSignal, this, &TrackWindow::clickUpFootageSignal);
-
-    //     mTrackVisitorManager->getMainLayout()->addWidget(trackLineWgt);
-    //     scrollBarVec.push_back(trackLineWgt->horizontalScrollBar());
-    // }
-    // mTrackControllerManager->getMainLayout()->addStretch();
-    // mTrackVisitorManager->getMainLayout()->addStretch();
-    // mTrackControllerManager->resetScrollValue();
-    // mTrackVisitorManager->resetScrollValue();
-
-    // // 共享滚动事件
-    // for (auto &scrollBar : scrollBarVec) {
-    //     QObject::connect(scrollBar, &QScrollBar::valueChanged, [=](int value) {
-    //         for (auto &bar : scrollBarVec) {
-    //             if (bar->value() != value) {
-    //                 bar->setValue(value);
-    //             }
-    //         }
-    //     });
-    // }
+    // 共享滚动事件
+    for (auto &scrollBar : scrollBarVec) {
+        QObject::connect(scrollBar, &QScrollBar::valueChanged, [=](int value) {
+            for (auto &bar : scrollBarVec) {
+                if (bar->value() != value) {
+                    bar->setValue(value);
+                }
+            }
+        });
+    }
 }
 
 } // namespace DM

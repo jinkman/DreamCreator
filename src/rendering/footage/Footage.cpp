@@ -42,4 +42,21 @@ void Footage::updateEndTime(DMTime t) {
     mEndTime = t;
 }
 
+void Footage::updateResources(const std::string &path) {
+    mLocalPath = mRootNode == nullptr ? path : mRootNode->getRealFilePath(path);
+    mOriginPath = path;
+}
+
+std::string Footage::getResourcesOriginPath() const {
+    return mOriginPath;
+}
+
+std::string Footage::getResourcesLocalPath() const {
+    return mLocalPath;
+}
+
+EFootageType Footage::getFootageType() const {
+    return mFootageType;
+}
+
 } // namespace DM

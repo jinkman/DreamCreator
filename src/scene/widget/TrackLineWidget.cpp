@@ -34,16 +34,20 @@ void TrackLineWidget::updateSceneWidthSlot(int v) {
 }
 
 void TrackLineWidget::setupTrackLine() {
-    // auto footages = mTrack->getFootages();
-    // for (auto &footage : footages) {
-    //     FootageWidget *footageWgt = new FootageWidget(nullptr);
-    //     footageWgt->updateFootage(footage);
-    //     auto proxy = mScene->addWidget(footageWgt);
-    //     int startX = std::ceil(footage->startTime() / 1000.0f * oneSecondNoScaleStep);
-    //     proxy->setPos(startX, 0);
-    //     // 绑定点击信号
-    //     connect(footageWgt, &FootageWidget::clickUpFootageSignal, this, &TrackLineWidget::clickUpFootageSignal);
-    // }
+    auto footageTrack = std::dynamic_pointer_cast<FootageTrack>(mTrack);
+    if (footageTrack == nullptr) {
+        return;
+    }
+    auto footages = footageTrack->getFootages();
+    for (auto &footage : footages) {
+        FootageWidget *footageWgt = new FootageWidget(nullptr);
+        footageWgt->updateFootage(footage);
+        auto proxy = mScene->addWidget(footageWgt);
+        int startX = std::ceil(footage->startTime() / 1000.0f * oneSecondNoScaleStep);
+        proxy->setPos(startX, 0);
+        // 绑定点击信号
+        connect(footageWgt, &FootageWidget::clickUpFootageSignal, this, &TrackLineWidget::clickUpFootageSignal);
+    }
 }
 
 } // namespace DM

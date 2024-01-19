@@ -14,6 +14,8 @@ public:
 
     virtual void flush(DMTime t) override;
 
+    std::vector<std::shared_ptr<Footage>> getFootages();
+
 protected:
     FootageTrack(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode);
 

@@ -1,12 +1,15 @@
 #include "OpenGLWidget.h"
 #include <QMessageBox>
-#include "scene/widget/ProcessDlg.h"
 #include <QCoreApplication>
+#include "scene/widget/ProcessDlg.h"
+#include "utils/GlobalMsgMgr.h"
 
 namespace DM {
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) :
     QOpenGLWidget(parent) {
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::exportFile, this, &OpenGLWidget::exportVideo);
+    // connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::saveFile, this, &OpenGLWidget::saveFile);
 }
 
 OpenGLWidget::~OpenGLWidget() {
@@ -38,7 +41,8 @@ void OpenGLWidget::closeScene() {
     mPlayer = nullptr;
 }
 
-void OpenGLWidget::exportVideo(const std::filesystem::path &path) {
+void OpenGLWidget::exportVideo(const QString &str) {
+    std::filesystem::path path = str.toStdString();
     if (mPlayer == nullptr) {
         return;
     }
@@ -73,6 +77,8 @@ void OpenGLWidget::paintGL() {
     GLUtils::Get()->cleanColor({27.0f / 255.0f, 27.0f / 255.0f, 28.0f / 255.0f, 1.0f});
     if (mPlayer && mPlayer->isValid()) {
         mPlayer->flush();
+        // 发送全局信号
+        emit GlobalMsgMgr::getInstance().flushOneFrame(mPlayer.get());
     }
 }
 

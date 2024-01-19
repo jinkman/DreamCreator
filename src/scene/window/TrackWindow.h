@@ -6,7 +6,6 @@
 #include "rendering/Player.h"
 #include "scene/widget/ContainerWidget.h"
 #include "scene/widget/DividingRule.h"
-#include "scene/widget/DividingRule.h"
 
 namespace DM {
 
@@ -22,7 +21,8 @@ private:
 
     void setupContentLayout();
 
-    void updateTrackInfo();
+public slots:
+    void updateTrackInfo(Player *scenePlayer);
 
 private:
     ContainerWidget *mTrackControllerManager = nullptr;

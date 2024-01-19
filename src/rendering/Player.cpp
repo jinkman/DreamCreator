@@ -73,6 +73,17 @@ int Player::getTrackSize() {
     return int(mTracks.size());
 }
 
+std::vector<std::shared_ptr<Track>> Player::getTracks() {
+    return mTracks;
+}
+
+std::shared_ptr<Track> Player::getTrackAtIndex(int i) {
+    if (i < 0 || i > getTrackSize() - 1) {
+        return nullptr;
+    }
+    return mTracks.at(i);
+}
+
 void Player::addTrackToPlayer(std::shared_ptr<Track> track) {
     mTracks.push_back(track);
 }

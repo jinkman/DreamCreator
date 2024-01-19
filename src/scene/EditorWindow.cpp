@@ -9,6 +9,7 @@
 #include "window/PlayerWindow.h"
 #include "window/TrackWindow.h"
 #include "common/Common.h"
+#include "utils/GlobalMsgMgr.h"
 
 namespace DM {
 

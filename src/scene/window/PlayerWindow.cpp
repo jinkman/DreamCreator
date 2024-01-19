@@ -1,9 +1,9 @@
 #include "PlayerWindow.h"
-#include <QMessageBox>
 #include <QResizeEvent>
 #include <QFileDialog>
 #include "scene/widget/ProcessDlg.h"
 #include "common/Common.h"
+#include "utils/GlobalMsgMgr.h"
 
 namespace DM {
 
@@ -15,6 +15,8 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
 
     setupBottomWgt();
     getLayout()->setContentsMargins(3, 6, 3, 3);
+    // 绑定相关事件
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::flushOneFrame, this, &PlayerWindow::onScenePlayerFlush);
 }
 
 PlayerWindow::~PlayerWindow() {
@@ -31,6 +33,7 @@ void PlayerWindow::initSceneByFile(const QString &str) {
         mTimer = new QTimer(this);
         connect(mTimer, SIGNAL(timeout()), this, SLOT(flushNextFrame()));
     }
+    emit GlobalMsgMgr::getInstance().initSceneFinished(mOpenGLWgt->getScenePlayer());
 }
 
 void PlayerWindow::closeScene() {
@@ -78,6 +81,7 @@ void PlayerWindow::setupPlayer() {
     mOpenGLWgt = new OpenGLWidget(this);
     mOpenGLWgt->setMinimumSize(300, 300);
     getLayout()->addWidget(mOpenGLWgt);
+    connect(mOpenGLWgt, SIGNAL(scenePlayerFlushSignal(DMTime)), this, SLOT(onScenePlayerFlush(DMTime)));
 }
 
 void PlayerWindow::setupBottomWgt() {
@@ -130,14 +134,22 @@ void PlayerWindow::setupBottomWgt() {
 }
 
 void PlayerWindow::saveFile() {
-    QMessageBox::about(this, tr("About saveFile"), "saveFile");
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("josn (*.josn)"));
+    if (!fileName.isEmpty()) {
+        emit GlobalMsgMgr::getInstance().saveFile(fileName);
+    }
 }
 
 void PlayerWindow::exportFile() {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Export Video"), "", tr("Video (*.mp4)"));
     if (!fileName.isEmpty()) {
-        mOpenGLWgt->exportVideo(fileName.toStdString());
+        emit GlobalMsgMgr::getInstance().exportFile(fileName);
     }
+}
+
+void PlayerWindow::onScenePlayerFlush(Player *scenePlayer) {
+    setTimeToLabel(mLabelTotolTime, scenePlayer->duration());
+    setTimeToLabel(mLabelPlayTime, scenePlayer->currentTime());
 }
 
 void PlayerWindow::setTimeToLabel(QLabel *label, DMTime t) {
@@ -153,10 +165,9 @@ void PlayerWindow::flushNextFrame() {
     if (scenePlayer == nullptr) {
         return;
     }
-    mOpenGLWgt->update();
-    setTimeToLabel(mLabelPlayTime, scenePlayer->currentTime());
     // 下一帧
     scenePlayer->setProgress(scenePlayer->getProgress() + 1.0f / float(timeToFrame(scenePlayer->getVideoInfo().duration, scenePlayer->getVideoInfo().fps)));
+    mOpenGLWgt->update();
 }
 
 } // namespace DM

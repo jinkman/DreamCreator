@@ -3,19 +3,18 @@
 #include <QPen>
 #include <QScrollBar>
 #include <QResizeEvent>
+#include "utils/GlobalMsgMgr.h"
+#include "rendering/Player.h"
 
 namespace DM {
 
 RuleWidget::RuleWidget(QWidget *parent) :
     QWidget(parent) {
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::initSceneFinished, this, &RuleWidget::updateRuleInfo);
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::flushOneFrame, this, &RuleWidget::updateRuleInfo);
 }
 
 RuleWidget::~RuleWidget() {
-}
-
-void RuleWidget::setDuration(const DMTime &v) {
-    mDuration = v;
-    updateRule();
 }
 
 void RuleWidget::updateRule() {
@@ -34,8 +33,9 @@ void RuleWidget::updateRule() {
     update();
 }
 
-void RuleWidget::setCurentTime(const DMTime &v) {
-    mCurrentTime = v;
+void RuleWidget::updateRuleInfo(Player *scenePlayer) {
+    mCurrentTime = scenePlayer->currentTime();
+    mDuration = scenePlayer->duration() + 5000;
     updateRule();
 }
 

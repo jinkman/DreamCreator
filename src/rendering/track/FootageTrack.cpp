@@ -24,4 +24,8 @@ void FootageTrack::flush(DMTime t) {
     }
 }
 
+std::vector<std::shared_ptr<Footage>> FootageTrack::getFootages() {
+    return mFootages;
+}
+
 } // namespace DM

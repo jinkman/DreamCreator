@@ -9,6 +9,7 @@ namespace DM {
 
 const float oneSecondNoScaleStep = 50.0f;
 
+class Player;
 // 刻度尺相关
 class RuleWidget : public QWidget {
     Q_OBJECT
@@ -16,10 +17,6 @@ public:
     explicit RuleWidget(QWidget *parent = 0);
 
     ~RuleWidget();
-
-    void setDuration(const DMTime &v);
-
-    void setCurentTime(const DMTime &v);
 
     // 坐标刻度信息
     struct RuleSliceInfo {
@@ -31,6 +28,9 @@ public:
 
 signals:
     void sizeChanged(const QSize &);
+
+private slots:
+    void updateRuleInfo(Player *);
 
 protected:
     virtual void paintEvent(QPaintEvent *event) override;

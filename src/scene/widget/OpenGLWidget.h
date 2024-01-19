@@ -16,7 +16,7 @@ public:
 
     void closeScene();
 
-    void exportVideo(const std::filesystem::path &path);
+    void exportVideo(const QString &str);
 
     Player *getScenePlayer();
 

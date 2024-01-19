@@ -17,6 +17,10 @@ public:
 
     void updateResources(const std::string &path) override;
 
+    DMTime getResStartTime() const;
+
+    DMTime getResEndTime() const;
+
 protected:
     VideoFootage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode);
 

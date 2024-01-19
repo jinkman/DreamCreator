@@ -45,6 +45,10 @@ public:
     // 管理轨道
     int getTrackSize();
 
+    std::vector<std::shared_ptr<Track>> getTracks();
+
+    std::shared_ptr<Track> getTrackAtIndex(int i);
+
     void addTrackToPlayer(std::shared_ptr<Track> track);
 
     void addTrackToPlayerAtIndex(std::shared_ptr<Track> track, int index);

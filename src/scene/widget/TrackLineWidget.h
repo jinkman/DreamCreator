@@ -4,7 +4,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QHBoxLayout>
-#include <rendering/track/Track.h>
+#include <rendering/track/FootageTrack.h>
 #include "FootageWidget.h"
 
 namespace DM {

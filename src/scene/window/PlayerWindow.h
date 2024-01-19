@@ -25,6 +25,8 @@ public slots:
 
     void exportFile();
 
+    void onScenePlayerFlush(Player *scenePlayer);
+
 private:
     void setupTitle();
 
