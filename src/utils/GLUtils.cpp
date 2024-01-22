@@ -21,9 +21,9 @@ std::shared_ptr<GLUtils> GLUtils::Get() {
         if (singleton == nullptr) {
             std::shared_ptr<GLUtils> temp(new GLUtils());
             singleton = temp;
+            singleton->initializeOpenGLFunctions();
         }
     }
-    singleton->initializeOpenGLFunctions();
     return singleton;
 }
 

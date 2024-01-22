@@ -35,7 +35,7 @@ void RuleWidget::updateRule() {
 
 void RuleWidget::updateRuleInfo(Player *scenePlayer) {
     mCurrentTime = scenePlayer->currentTime();
-    mDuration = scenePlayer->duration() + 5000;
+    mDuration = scenePlayer->duration();
     updateRule();
 }
 

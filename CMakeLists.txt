@@ -1,5 +1,5 @@
 # 最低指定的CMake版本
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
 # 括号里面填你的工程名
 set(PRO_NAME "DreamCreator")
@@ -39,6 +39,12 @@ list(APPEND INCLUDES_DIR ${SRC_DIR}/)
 list(APPEND INCLUDES_DIR ${SRC_DIR}/common)
 list(APPEND INCLUDES_DIR ${third-party-path}/json/single_include)
 
+# 添加pag
+list(APPEND INCLUDES_DIR ${third-party-path}/deploy/libpag/libpag/include)
+
+file(GLOB PAG_LIBS ${third-party-path}/deploy/libpag/libpag/mac/arm64/*.a)
+file(GLOB SWIFTSHADER_LIBS ${third-party-path}/deploy/libpag/swiftshader/mac/arm64/*.*)
+
 # 配置文件
 configure_file(
     "${SRC_DIR}/common/Config.h.in"
@@ -50,6 +56,7 @@ file(GLOB_RECURSE SRC_CPP ${SRC_DIR}/*.cpp ${SRC_DIR}/*.c)
 file(GLOB_RECURSE SRC_H ${SRC_DIR}/*.h ${SRC_DIR}/*.hpp)
 
 add_executable(${PRO_NAME}
+    MACOSX_BUNDLE
     ${SRC_CPP}
     ${SRC_H}
 )
@@ -60,6 +67,34 @@ target_include_directories(${PRO_NAME}
     ${SRC_DIR}
 )
 
+set(SYS_LIBS ${LZMA_FRAMEWORK} ${LZ_FRAMEWORK} ${LBZ2_FRAMEWORK} ${LICONV_FRAMEWORK})
+
+if(APPLE)
+    find_library(APPLICATION_SERVICES_FRAMEWORK ApplicationServices REQUIRED)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${APPLICATION_SERVICES_FRAMEWORK})
+    find_library(QUARTZ_CORE QuartzCore REQUIRED)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${QUARTZ_CORE})
+    find_library(COCOA Cocoa REQUIRED)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${COCOA})
+    find_library(FOUNDATION Foundation REQUIRED)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${FOUNDATION})
+    find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${ICONV_LIBRARIES})
+    find_library(VIDEOTOOLBOX VideoToolbox)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${VIDEOTOOLBOX})
+    find_library(CORE_MEDIA CoreMedia)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${CORE_MEDIA})
+    find_library(COMPRESSION_LIBRARIES NAMES compression)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${COMPRESSION_LIBRARIES})
+elseif(WIN32)
+    set(BUILD_USE_64BITS ON)
+    add_definitions(-DNOMINMAX -D_USE_MATH_DEFINES)
+    find_library(Bcrypt_LIB Bcrypt)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${Bcrypt_LIB})
+    find_library(ws2_32_LIB ws2_32)
+    list(APPEND PAG_VIEWER_PLATFORM_LIBS ${ws2_32_LIB})
+endif()
+
 target_link_libraries(${PRO_NAME}
     PRIVATE
     Qt5::Widgets
@@ -69,4 +104,8 @@ target_link_libraries(${PRO_NAME}
     opencv_video
     opencv_videoio
     opencv_highgui
+    ${PAG_LIBS}
+    ${SWIFTSHADER_LIBS}
+    ${PAG_VIEWER_PLATFORM_LIBS}
+    ${SYS_LIBS}
 )

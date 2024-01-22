@@ -7,3 +7,6 @@
 [submodule "third-party/opencv"]
 	path = third-party/opencv
 	url = https://github.com/opencv/opencv.git
+[submodule "third-party/libpag"]
+	path = third-party/libpag
+	url = https://github.com/Tencent/libpag.git

@@ -10,10 +10,11 @@
 namespace DM {
 
 enum class ELayerType {
-    EUNKNOW,
-    EROOT_NODE,
-    ECOMPOSITION_LAYER,
-    EIMAGE_LAYER
+    EUNKNOW = 0,
+    EROOT_NODE = 1,
+    ECOMPOSITION_LAYER = 2,
+    EIMAGE_LAYER = 3,
+    EPAG_LAYER = 4
 };
 
 class RootNode;

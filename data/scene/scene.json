@@ -3,7 +3,7 @@
         "width": 720,
         "height": 1280,
         "fps": 30.0,
-        "duration": 10000,
+        "duration": 15000,
         "backgroundColor": [
             0.2,
             0.3,
@@ -17,10 +17,36 @@
             "footages": [
                 {
                     "startTime": 0,
-                    "endTime": 10000,
+                    "endTime": 5000,
+                    "resStartTime": 0,
+                    "resEndTime": 5000,
+                    "footageType": "pag",
+                    "resourcesPath": "./test.pag",
+                    "transform": {
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "orientation": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "translate": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "startTime": 5000,
+                    "endTime": 15000,
                     "resStartTime": 0,
                     "resEndTime": 10000,
-                    "footageType": "mp4",
+                    "footageType": "video",
                     "resourcesPath": "./bkGaussianBlur.mp4",
                     "transform": {
                         "scale": [

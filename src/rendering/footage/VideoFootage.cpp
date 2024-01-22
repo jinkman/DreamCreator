@@ -14,9 +14,7 @@ VideoFootage::VideoFootage(const nlohmann::json &obj, std::shared_ptr<RootNode> 
     mFootageType = EFootageType::EVIDEO_FOOTAGE;
     mResStartTime = obj["resStartTime"].get<DMTime>();
     mResEndTime = obj["resEndTime"].get<DMTime>();
-    if (obj.contains("transform")) {
-        mLayerTransform = obj["transform"];
-    }
+
 } // namespace DM
 
 VideoFootage::~VideoFootage() {
@@ -24,11 +22,11 @@ VideoFootage::~VideoFootage() {
 
 void VideoFootage::flush(DMTime t) {
     if (t < startTime() || t >= endTime()) { // 不可见
-        mImageLayer->visible() = false;
+        mLayer->visible() = false;
         return;
     }
 
-    mImageLayer->visible() = true;
+    mLayer->visible() = true;
     double ratio = double(t - startTime()) / double(duration());
     DMTime interceptTime = mResStartTime + DMTime((mResEndTime - mResStartTime) * ratio);
 
@@ -50,7 +48,7 @@ void VideoFootage::flush(DMTime t) {
     }
     cv::cvtColor(matCache, matCache, cv::COLOR_BGRA2RGBA);
     // 更新
-    mImageLayer->updateImageData(matCache.data, matCache.cols, matCache.rows, matCache.channels());
+    std::static_pointer_cast<ImageLayer>(mLayer)->updateImageData(matCache.data, matCache.cols, matCache.rows, matCache.channels());
 }
 
 void VideoFootage::updateResources(const std::string &path) {
@@ -64,15 +62,15 @@ void VideoFootage::updateResources(const std::string &path) {
     mFrameRate = mVideoCap.get(cv::CAP_PROP_FPS); // 帧率
     mLastFrame = -1;
     // 创建图层
-    if (mImageLayer == nullptr) {
+    if (mLayer == nullptr) {
         nlohmann::json layerJson = nlohmann::json::object();
         layerJson["type"] = "image";
         layerJson["scaleMode"] = 2;
         if (!mLayerTransform.is_null()) {
             layerJson["transform"] = mLayerTransform;
         }
-        mImageLayer = ImageLayer::creatImageLayerByJson(layerJson, *mRootNode);
-        mRootNode->getRootComposition()->addLayer(mImageLayer);
+        mLayer = ImageLayer::creatImageLayerByJson(layerJson, *mRootNode);
+        mRootNode->getRootComposition()->addLayer(mLayer);
     }
 }
 

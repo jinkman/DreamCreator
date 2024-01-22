@@ -1,13 +1,16 @@
 #include "Footage.h"
 #include "VideoFootage.h"
+#include "PAGFootage.h"
 
 namespace DM {
 
 std::shared_ptr<Footage> Footage::createFootageByJson(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode) {
     std::shared_ptr<Footage> footage = nullptr;
     std::string footageType = obj["footageType"].get<std::string>();
-    if (footageType == "mp4") {
+    if (footageType == "video") {
         footage = VideoFootage::createVideoFootageByJson(obj, rtNode);
+    } else if (footageType == "pag") {
+        footage = PAGFootage::createPAGFootageByJson(obj, rtNode);
     }
     footage->updateResources(obj["resourcesPath"].get<std::string>());
     return footage;
@@ -20,6 +23,9 @@ Footage::Footage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode) {
     mRootNode = rtNode;
     mStartTime = obj["startTime"].get<DMTime>();
     mEndTime = obj["endTime"].get<DMTime>();
+    if (obj.contains("transform")) {
+        mLayerTransform = obj["transform"];
+    }
 }
 
 DMTime Footage::startTime() const {

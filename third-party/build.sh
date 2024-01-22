@@ -4,6 +4,7 @@ workdir=$(cd $(dirname $0); pwd)
 third_party_list=(
     glm
     opencv
+    libpag
 )
 
 for i in ${third_party_list[@]}

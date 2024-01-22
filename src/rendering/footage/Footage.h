@@ -51,6 +51,10 @@ protected:
     std::string mOriginPath = "";
     std::string mLocalPath = "";
     EFootageType mFootageType = EFootageType::EUNKNOW_FOOTAGE;
+    // 图层属性
+    std::shared_ptr<Layer> mLayer = nullptr;
+    // srt
+    nlohmann::json mLayerTransform;
 };
 
 } // namespace DM

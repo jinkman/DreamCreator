@@ -1,5 +1,6 @@
 #include "CompositionLayer.h"
 #include "ImageLayer.h"
+#include "PAGLayer.h"
 
 namespace DM {
 std::shared_ptr<CompositionLayer> CompositionLayer::creatCompositionLayerByJson(const nlohmann::json &obj, RootNode &rootNode) {
@@ -18,6 +19,8 @@ CompositionLayer::CompositionLayer(const nlohmann::json &obj, RootNode &rootNode
             auto type = child["type"].get<std::string>();
             if (type == "image") {
                 mLayers.emplace_back(ImageLayer::creatImageLayerByJson(child, rootNode));
+            } else if (type == "pag") {
+                mLayers.emplace_back(PAGLayer::creatPAGLayerByJson(child, rootNode));
             } else if (type == "composition") {
                 mLayers.emplace_back(CompositionLayer::creatCompositionLayerByJson(child, rootNode));
             }
