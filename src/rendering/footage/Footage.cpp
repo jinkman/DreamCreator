@@ -26,9 +26,7 @@ Footage::Footage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode) {
     mRootNode = rtNode;
     mStartTime = obj["startTime"].get<DMTime>();
     mEndTime = obj["endTime"].get<DMTime>();
-    if (obj.contains("transform")) {
-        mLayerTransform = obj["transform"];
-    }
+    mLayerJson = obj;
 }
 
 DMTime Footage::startTime() const {

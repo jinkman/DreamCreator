@@ -13,8 +13,8 @@ ImageFootage::ImageFootage(const nlohmann::json &obj, std::shared_ptr<RootNode> 
     Footage(obj, rtNode) {
     // 解析
     mFootageType = EFootageType::EIMAGE_FOOTAGE;
-
-} // namespace DM
+    mLayerJson["type"] = "image";
+}
 
 ImageFootage::~ImageFootage() {
 }
@@ -34,13 +34,7 @@ void ImageFootage::updateResources(const std::string &path) {
     std::string localPath = getResourcesLocalPath();
     // 创建图层
     if (mLayer == nullptr) {
-        nlohmann::json layerJson = nlohmann::json::object();
-        layerJson["type"] = "image";
-        layerJson["scaleMode"] = 2;
-        if (!mLayerTransform.is_null()) {
-            layerJson["transform"] = mLayerTransform;
-        }
-        mLayer = ImageLayer::creatImageLayerByJson(layerJson, *mRootNode);
+        mLayer = ImageLayer::creatImageLayerByJson(mLayerJson, *mRootNode);
         mRootNode->getRootComposition()->addLayer(mLayer);
     }
 

@@ -15,6 +15,7 @@ PAGFootage::PAGFootage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNo
     mResStartTime = obj["resStartTime"].get<DMTime>();
     mResEndTime = obj["resEndTime"].get<DMTime>();
     mPagType = obj.contains("pagType") && obj["pagType"].get<std::string>() == "subtitle" ? EPAGType::EPAG_SUBTITLE : EPAGType::EPAG_COMPOSITION;
+    mLayerJson["type"] = "pag";
 }
 
 PAGFootage::~PAGFootage() {
@@ -38,13 +39,7 @@ void PAGFootage::updateResources(const std::string &path) {
     Footage::updateResources(path);
     // 创建图层
     if (mLayer == nullptr) {
-        nlohmann::json layerJson = nlohmann::json::object();
-        layerJson["type"] = "pag";
-        layerJson["scaleMode"] = 2;
-        if (!mLayerTransform.is_null()) {
-            layerJson["transform"] = mLayerTransform;
-        }
-        mLayer = PAGLayer::creatPAGLayerByJson(layerJson, *mRootNode);
+        mLayer = PAGLayer::creatPAGLayerByJson(mLayerJson, *mRootNode);
         mRootNode->getRootComposition()->addLayer(mLayer);
     }
     std::string localPath = getResourcesLocalPath();

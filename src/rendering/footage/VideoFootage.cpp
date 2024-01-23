@@ -14,8 +14,8 @@ VideoFootage::VideoFootage(const nlohmann::json &obj, std::shared_ptr<RootNode> 
     mFootageType = EFootageType::EVIDEO_FOOTAGE;
     mResStartTime = obj["resStartTime"].get<DMTime>();
     mResEndTime = obj["resEndTime"].get<DMTime>();
-
-} // namespace DM
+    mLayerJson["type"] = "video";
+}
 
 VideoFootage::~VideoFootage() {
 }
@@ -63,13 +63,7 @@ void VideoFootage::updateResources(const std::string &path) {
     mLastFrame = -1;
     // 创建图层
     if (mLayer == nullptr) {
-        nlohmann::json layerJson = nlohmann::json::object();
-        layerJson["type"] = "video";
-        layerJson["scaleMode"] = 2;
-        if (!mLayerTransform.is_null()) {
-            layerJson["transform"] = mLayerTransform;
-        }
-        mLayer = ImageLayer::creatImageLayerByJson(layerJson, *mRootNode);
+        mLayer = ImageLayer::creatImageLayerByJson(mLayerJson, *mRootNode);
         mRootNode->getRootComposition()->addLayer(mLayer);
     }
 }

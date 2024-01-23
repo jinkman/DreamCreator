@@ -54,7 +54,7 @@ protected:
     // 图层属性
     std::shared_ptr<Layer> mLayer = nullptr;
     // srt
-    nlohmann::json mLayerTransform;
+    nlohmann::json mLayerJson = nlohmann::json::object();
 };
 
 } // namespace DM
