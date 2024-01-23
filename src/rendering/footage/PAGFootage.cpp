@@ -1,6 +1,5 @@
 #include "PAGFootage.h"
 #include "rendering/layer/PAGLayer.h"
-#include "utils/LogUtils.h"
 
 namespace DM {
 
@@ -15,6 +14,7 @@ PAGFootage::PAGFootage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNo
     mFootageType = EFootageType::EPAG_FOOTAGE;
     mResStartTime = obj["resStartTime"].get<DMTime>();
     mResEndTime = obj["resEndTime"].get<DMTime>();
+    mPagType = obj.contains("pagType") && obj["pagType"].get<std::string>() == "subtitle" ? EPAGType::EPAG_SUBTITLE : EPAGType::EPAG_COMPOSITION;
 }
 
 PAGFootage::~PAGFootage() {
@@ -25,18 +25,13 @@ void PAGFootage::flush(DMTime t) {
         mLayer->visible() = false;
         return;
     }
-    std::static_pointer_cast<PAGLayer>(mLayer)->updatePagFile(nullptr);
 
     mLayer->visible() = true;
     double ratio = double(t - startTime()) / double(duration());
     DMTime interceptTime = mResStartTime + DMTime((mResEndTime - mResStartTime) * ratio);
-    auto pagPlayer = std::static_pointer_cast<PAGLayer>(mLayer)->getPlayer();
+    auto pagPlayer = std::static_pointer_cast<PAGLayer>(mLayer)->getPAGPlayer();
     double progress = double(1000 * interceptTime) / double(pagPlayer->getComposition()->duration());
-    DMLOG << progress;
-    pagPlayer->setProgress(progress);
-    pag::BackendSemaphore bs;
-    pagPlayer->flushAndSignalSemaphore(&bs);
-    pagPlayer->wait(bs);
+    setPAGProgressAndFlush(progress);
 }
 
 void PAGFootage::updateResources(const std::string &path) {
@@ -44,7 +39,7 @@ void PAGFootage::updateResources(const std::string &path) {
     // 创建图层
     if (mLayer == nullptr) {
         nlohmann::json layerJson = nlohmann::json::object();
-        layerJson["type"] = "image";
+        layerJson["type"] = "pag";
         layerJson["scaleMode"] = 2;
         if (!mLayerTransform.is_null()) {
             layerJson["transform"] = mLayerTransform;
@@ -62,6 +57,30 @@ DMTime PAGFootage::getResStartTime() const {
 
 DMTime PAGFootage::getResEndTime() const {
     return mResEndTime;
+}
+
+EPAGType PAGFootage::getPAGType() const {
+    return mPagType;
+}
+
+double PAGFootage::getProgress() {
+    auto pagPlayer = std::static_pointer_cast<PAGLayer>(mLayer)->getPAGPlayer();
+    return pagPlayer->getProgress();
+}
+
+void PAGFootage::setPAGProgressAndFlush(double v) {
+    auto pagPlayer = std::static_pointer_cast<PAGLayer>(mLayer)->getPAGPlayer();
+    pagPlayer->setProgress(v);
+    pagPlayer->flush();
+}
+
+bool PAGFootage::readPixels(pag::ColorType colorType, pag::AlphaType alphaType, void *dstPixels, size_t dstRowBytes) {
+    auto pagPlayer = std::static_pointer_cast<PAGLayer>(mLayer)->getPAGPlayer();
+    return pagPlayer->getSurface()->readPixels(colorType, alphaType, dstPixels, dstRowBytes);
+}
+
+std::shared_ptr<pag::PAGFile> PAGFootage::getPAGFile() {
+    return std::static_pointer_cast<PAGLayer>(mLayer)->getPAGFile();
 }
 
 } // namespace DM

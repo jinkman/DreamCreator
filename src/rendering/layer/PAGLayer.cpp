@@ -50,9 +50,11 @@ PAGLayer::PAGLayer(const nlohmann::json &obj, RootNode &rootNode) :
 }
 
 void PAGLayer::updatePagFile(std::shared_ptr<pag::PAGFile> pagFile) {
-    if (pagFile != nullptr) {
-        mPlayer->setComposition(pagFile);
+    if (pagFile == nullptr) {
+        return;
     }
+    mPagFile = pagFile;
+    mPlayer->setComposition(pagFile);
     auto wid = mPlayer->getComposition()->width();
     auto hei = mPlayer->getComposition()->height();
     bool needUpdateSur = false;
@@ -75,8 +77,12 @@ void PAGLayer::updatePagFile(std::shared_ptr<pag::PAGFile> pagFile) {
     updateBoundBox(Rect::MakeWH(texture.width, texture.height));
 }
 
-std::shared_ptr<pag::PAGPlayer> PAGLayer::getPlayer() {
+std::shared_ptr<pag::PAGPlayer> PAGLayer::getPAGPlayer() {
     return mPlayer;
+}
+
+std::shared_ptr<pag::PAGFile> PAGLayer::getPAGFile() {
+    return mPagFile;
 }
 
 void PAGLayer::releaseResources() {

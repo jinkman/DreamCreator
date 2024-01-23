@@ -1,6 +1,7 @@
 #include "Footage.h"
 #include "VideoFootage.h"
 #include "PAGFootage.h"
+#include "ImageFootage.h"
 
 namespace DM {
 
@@ -11,6 +12,8 @@ std::shared_ptr<Footage> Footage::createFootageByJson(const nlohmann::json &obj,
         footage = VideoFootage::createVideoFootageByJson(obj, rtNode);
     } else if (footageType == "pag") {
         footage = PAGFootage::createPAGFootageByJson(obj, rtNode);
+    } else if (footageType == "image") {
+        footage = ImageFootage::createImageFootageByJson(obj, rtNode);
     }
     footage->updateResources(obj["resourcesPath"].get<std::string>());
     return footage;

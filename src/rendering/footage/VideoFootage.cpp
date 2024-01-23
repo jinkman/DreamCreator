@@ -64,7 +64,7 @@ void VideoFootage::updateResources(const std::string &path) {
     // 创建图层
     if (mLayer == nullptr) {
         nlohmann::json layerJson = nlohmann::json::object();
-        layerJson["type"] = "image";
+        layerJson["type"] = "video";
         layerJson["scaleMode"] = 2;
         if (!mLayerTransform.is_null()) {
             layerJson["transform"] = mLayerTransform;

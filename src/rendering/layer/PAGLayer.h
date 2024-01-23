@@ -19,7 +19,9 @@ public:
 
     void updatePagFile(std::shared_ptr<pag::PAGFile> pagFile);
 
-    std::shared_ptr<pag::PAGPlayer> getPlayer();
+    std::shared_ptr<pag::PAGPlayer> getPAGPlayer();
+
+    std::shared_ptr<pag::PAGFile> getPAGFile();
 
 protected:
     PAGLayer(const nlohmann::json &obj, RootNode &rootNode);
@@ -31,6 +33,8 @@ protected:
     GLTexture texture;
 
     std::shared_ptr<pag::PAGPlayer> mPlayer = nullptr;
+
+    std::shared_ptr<pag::PAGFile> mPagFile = nullptr;
 
     std::vector<unsigned char> mImageData;
 };

@@ -6,7 +6,7 @@
 #include <QMouseEvent>
 #include <common/Common.h>
 #include "DividingRule.h"
-// #include "rendering/footage/PAGFootage.h"
+#include "rendering/footage/PAGFootage.h"
 // #include "rendering/footage/ImageFootage.h"
 #include "rendering/footage/VideoFootage.h"
 
@@ -32,7 +32,7 @@ void ImageLabel::paintEvent(QPaintEvent *event) {
     if (mIsIn) {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
-        painter.fillRect(this->rect(), {27, 27, 28, 100});
+        painter.fillRect(this->rect(), {255, 255, 255, 100});
     }
 }
 
@@ -74,7 +74,7 @@ void FootageWidget::updateFootage(std::shared_ptr<Footage> footage) {
         setupImageFootage(mFootage);
         break;
     case EFootageType::EPAG_FOOTAGE:
-        setupSubtitleFootage(mFootage);
+        setupPAGFootage(mFootage);
         break;
     case EFootageType::EVIDEO_FOOTAGE:
         setupVideoFootage(mFootage);
@@ -89,41 +89,67 @@ std::shared_ptr<Footage> FootageWidget::getFootage() {
     return mFootage;
 }
 
-void FootageWidget::setupSubtitleFootage(std::shared_ptr<Footage> footage) {
-    // auto replaceText = std::static_pointer_cast<PAGFootage>(footage)->getReplaceText();
-    // ImageLabel *label = new ImageLabel(this);
-    // label->setFixedSize(this->size());
-    // label->setText(QString::fromStdString(replaceText));
-    // label->setAlignment(Qt::AlignCenter);
-    // label->setWordWrap(true);
-    // mMainLayout->addWidget(label);
-    // mLabelVec.emplace_back(label);
+void FootageWidget::setupPAGFootage(std::shared_ptr<Footage> footage) {
+    auto pagFootage = std::static_pointer_cast<PAGFootage>(footage);
+    auto pagFile = pagFootage->getPAGFile();
+    // 字幕则展示文本
+    if (pagFootage->getPAGType() == EPAGType::EPAG_SUBTITLE) {
+        auto layers = pagFile->getLayersByEditableIndex(0, pag::LayerType::Text);
+        ImageLabel *label = new ImageLabel(this);
+        label->setFixedSize(this->size());
+        if (!layers.empty()) {
+            auto firstTextLayer = std::static_pointer_cast<pag::PAGTextLayer>(layers.at(0));
+            label->setText(QString::fromStdString(firstTextLayer->text()));
+        } else {
+            this->setToolTip("pagfile have no editable text layer" + QString::fromStdString(footage->getResourcesOriginPath()));
+        }
+        label->setAlignment(Qt::AlignCenter);
+        label->setWordWrap(true);
+        mMainLayout->addWidget(label);
+        mLabelVec.emplace_back(label);
+    } else { // 组合则展示内容
+        auto footageWid = pagFile->width();
+        auto footageHei = pagFile->height();
+        auto resStartTime = pagFootage->getResStartTime();
+        auto resEndTime = pagFootage->getResEndTime();
+        auto oldProgress = pagFootage->getProgress();
+        initImageFrameByRecorder(footageWid, footageHei, [this, pagFootage, pagFile, &resStartTime, &resEndTime, &footageWid, &footageHei](int num, int index, int oneWidth) -> cv::Mat {
+            cv::Mat frame(footageHei, footageWid, CV_8UC4, cv::Scalar(0, 0, 0, 0));
+            int offsetWidth = index * oneWidth;
+            auto offsetTime = resStartTime + (resEndTime - resStartTime) * (float(offsetWidth) / float(this->width()));
+            double progress = double(1000 * offsetTime) / double(pagFile->duration());
+            pagFootage->setPAGProgressAndFlush(progress);
+            pagFootage->readPixels(pag::ColorType::RGBA_8888, pag::AlphaType::Premultiplied, (unsigned char *)frame.data, footageWid * 4);
+            return frame;
+        });
+        pagFootage->setPAGProgressAndFlush(oldProgress);
+    }
 }
 
 void FootageWidget::setupImageFootage(std::shared_ptr<Footage> footage) {
-    // auto localPath = footage->getResourcesLocalPath();
-    // QPixmap pixmap(QString::fromStdString(localPath));
-    // if (pixmap.isNull()) {
-    //     // 错误处理
-    //     this->setToolTip("video open error:" + QString::fromStdString(footage->getResourcesRealPath()));
-    //     return;
-    // }
-    // int footageWid = pixmap.width();  // 获取宽度
-    // int footageHei = pixmap.height(); // 获取高度
-    // float whRatio = float(footageWid) / float(footageHei);
-    // int oneWidth = std::ceil(oneSecondNoScaleStep * std::min(whRatio, 1.0f));
-    // int num = std::ceil(float(this->width()) / float(oneWidth));
-    // // 重置大小
-    // pixmap = pixmap.scaled(QSize(oneWidth, this->height()) * 4, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    // for (int i = 0; i < num; i++) {
-    //     ImageLabel *label = new ImageLabel(this);
-    //     label->setFixedSize(oneWidth, this->height());
-    //     label->setPixmap(pixmap);
-    //     label->setAlignment(Qt::AlignCenter);
-    //     label->setScaledContents(true);
-    //     mMainLayout->addWidget(label);
-    //     mLabelVec.emplace_back(label);
-    // }
+    auto localPath = footage->getResourcesLocalPath();
+    QPixmap pixmap(QString::fromStdString(localPath));
+    if (pixmap.isNull()) {
+        // 错误处理
+        this->setToolTip("video open error:" + QString::fromStdString(footage->getResourcesOriginPath()));
+        return;
+    }
+    int footageWid = pixmap.width();  // 获取宽度
+    int footageHei = pixmap.height(); // 获取高度
+    float whRatio = float(footageWid) / float(footageHei);
+    int oneWidth = std::ceil(oneSecondNoScaleStep * std::min(whRatio, 1.0f));
+    int num = std::ceil(float(this->width()) / float(oneWidth));
+    // 重置大小
+    pixmap = pixmap.scaled(QSize(oneWidth, this->height()) * 4, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    for (int i = 0; i < num; i++) {
+        ImageLabel *label = new ImageLabel(this);
+        label->setFixedSize(oneWidth, this->height());
+        label->setPixmap(pixmap);
+        label->setAlignment(Qt::AlignCenter);
+        label->setScaledContents(true);
+        mMainLayout->addWidget(label);
+        mLabelVec.emplace_back(label);
+    }
 }
 
 void FootageWidget::setupVideoFootage(std::shared_ptr<Footage> footage) {
@@ -136,42 +162,23 @@ void FootageWidget::setupVideoFootage(std::shared_ptr<Footage> footage) {
         this->setToolTip("video open error:" + QString::fromStdString(videoFootage->getResourcesOriginPath()));
         return;
     }
-    cv::Mat frame;
+
     // 获取视频帧，根据宽高比处理
     int footageWid = cap.get(cv::CAP_PROP_FRAME_WIDTH);  // 获取宽度
     int footageHei = cap.get(cv::CAP_PROP_FRAME_HEIGHT); // 获取高度
-    float whRatio = float(footageWid) / float(footageHei);
-    int oneWidth = std::ceil(oneSecondNoScaleStep * std::min(whRatio, 1.0f));
-    int num = std::ceil(float(this->width()) / float(oneWidth));
-
     auto resStartTime = videoFootage->getResStartTime();
     auto resEndTime = videoFootage->getResEndTime();
-    int lastTime = 0;
-    for (int i = 0; i < num; i++) {
-        ImageLabel *label = new ImageLabel(this);
-        label->setFixedSize(oneWidth, this->height());
-        int offsetWidth = i * oneWidth;
-        // 确定时长
+    initImageFrameByRecorder(footageWid, footageHei, [this, &cap, &resStartTime, &resEndTime](int num, int index, int oneWidth) -> cv::Mat {
+        cv::Mat frame;
+        int offsetWidth = index * oneWidth;
         auto offsetTime = resStartTime + (resEndTime - resStartTime) * (float(offsetWidth) / float(this->width()));
-        if (lastTime - offsetTime != 0) { // 设置开始帧
-            cap.set(cv::CAP_PROP_POS_MSEC, offsetTime);
-            lastTime = offsetTime;
-        }
+        cap.set(cv::CAP_PROP_POS_MSEC, offsetTime);
         // 读取视频一帧
         cap.read(frame);
-
-        QImage::Format format = (frame.channels() == 3) ? QImage::Format_RGB888 : QImage::Format_Grayscale8;
         cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB); // 如果是彩色图像，需要从BGR转至RGB
-        QImage qImg((uchar *)frame.data, frame.cols, frame.rows, frame.step, format);
-        QPixmap pixmap = QPixmap::fromImage(qImg);
-        // 重置大小
-        pixmap = pixmap.scaled(label->size() * 4, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        label->setPixmap(pixmap);
-        label->setScaledContents(true);
-        label->setAlignment(Qt::AlignCenter);
-        mMainLayout->addWidget(label);
-        mLabelVec.emplace_back(label);
-    }
+        return frame;
+    });
+
     cap.release();
 }
 
@@ -182,6 +189,27 @@ void FootageWidget::setupWidget() {
     mMainLayout->setSpacing(0);
     mainWidget->setLayout(mMainLayout);
     this->setWidget(mainWidget);
+}
+
+void FootageWidget::initImageFrameByRecorder(int footageWid, int footageHei, FrameRecordFunc frameRecord) {
+    float whRatio = float(footageWid) / float(footageHei);
+    int oneWidth = std::ceil(oneSecondNoScaleStep * std::min(whRatio, 1.0f));
+    int num = std::ceil(float(this->width()) / float(oneWidth));
+    for (int i = 0; i < num; i++) {
+        ImageLabel *label = new ImageLabel(this);
+        label->setFixedSize(oneWidth, this->height());
+        cv::Mat frame = frameRecord(num, i, oneWidth);
+        QImage::Format format = (frame.channels() == 3) ? QImage::Format_RGB888 : QImage::Format_RGBA8888;
+        QImage qImg((uchar *)frame.data, frame.cols, frame.rows, frame.step, format);
+        QPixmap pixmap = QPixmap::fromImage(qImg);
+        // 重置大小
+        pixmap = pixmap.scaled(label->size() * 4, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        label->setPixmap(pixmap);
+        label->setScaledContents(true);
+        label->setAlignment(Qt::AlignCenter);
+        mMainLayout->addWidget(label);
+        mLabelVec.emplace_back(label);
+    }
 }
 
 void FootageWidget::paintEvent(QPaintEvent *event) {

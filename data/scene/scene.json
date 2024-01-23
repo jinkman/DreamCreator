@@ -43,9 +43,9 @@
                 },
                 {
                     "startTime": 5000,
-                    "endTime": 15000,
+                    "endTime": 10000,
                     "resStartTime": 0,
-                    "resEndTime": 10000,
+                    "resEndTime": 5000,
                     "footageType": "video",
                     "resourcesPath": "./bkGaussianBlur.mp4",
                     "transform": {
@@ -63,6 +63,30 @@
                         "translate": [
                             100.0,
                             100.0,
+                            0.0
+                        ]
+                    }
+                },
+                {
+                    "startTime": 10000,
+                    "endTime": 15000,
+                    "footageType": "image",
+                    "resourcesPath": "./test.jpg",
+                    "transform": {
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "orientation": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "translate": [
+                            0.0,
+                            0.0,
                             0.0
                         ]
                     }

@@ -5,7 +5,10 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include "rendering/footage/Footage.h"
+#include <opencv2/opencv.hpp>
 namespace DM {
+
+typedef std::function<cv::Mat(int, int, int)> FrameRecordFunc;
 
 class ImageLabel : public QLabel {
     Q_OBJECT
@@ -37,13 +40,15 @@ signals:
     void clickUpFootageSignal(std::shared_ptr<Footage> foogate);
 
 protected:
-    void setupSubtitleFootage(std::shared_ptr<Footage> footage);
+    void setupPAGFootage(std::shared_ptr<Footage> footage);
 
     void setupImageFootage(std::shared_ptr<Footage> footage);
 
     void setupVideoFootage(std::shared_ptr<Footage> footage);
 
     void setupWidget();
+
+    void initImageFrameByRecorder(int footageWid, int footageHei, FrameRecordFunc frameRecord);
 
     virtual void paintEvent(QPaintEvent *event) override;
 
