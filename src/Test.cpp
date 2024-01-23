@@ -1,8 +1,13 @@
 #include "scene/WindowManager.h"
 #include <QSurfaceFormat>
 #include <QApplication>
+#include <pag/pag.h>
+#include "common/Common.h"
 
 int main(int argc, char **argv) {
+    // 注册默认回退字体
+    pag::PAGFont::SetFallbackFontPaths({DM::getLocalPath("fonts/NotoSansCJKsc-Regular.woff")}, {0});
+
     QSurfaceFormat format;
     format.setMajorVersion(3);
     format.setMinorVersion(2);
