@@ -26,6 +26,9 @@ signals:
     // 刷新一帧
     void flushOneFrame(Player *);
 
+    // 设置进度
+    void updateProgress(Player *);
+
     // 属性框更新
     void updateProperty();
 

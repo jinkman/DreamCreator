@@ -25,7 +25,7 @@ public slots:
 
     void exportFile();
 
-    void onScenePlayerFlush(Player *scenePlayer);
+    void onPlayerProgressUpdate(Player *scenePlayer);
 
 private:
     void setupTitle();
@@ -38,18 +38,22 @@ private:
 
 private slots:
 
-    void flushNextFrame();
+    void flushFrame();
+
+    void flushProgress();
 
 private:
     // 时长
     QLabel *mLabelPlayTime = nullptr;
     QLabel *mLabelTotolTime = nullptr;
     OpenGLWidget *mOpenGLWgt = nullptr;
-    // 播放定时器
+    // 播放定时器，两个定时器。一个定时刷新画面，一个定时设置进度
     QPushButton *mPlayBtn = nullptr;
-    QTimer *mTimer = nullptr;
+    QTimer *mTimerFlushFrame = nullptr;
+    QTimer *mTimerFlushProgress = nullptr;
     // 时间间隔
     float mTimerStep = 0.0f;
+    qint64 mLastTimestamp = 0;
 };
 
 } // namespace DM

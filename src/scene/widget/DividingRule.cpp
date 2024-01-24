@@ -11,7 +11,7 @@ namespace DM {
 RuleWidget::RuleWidget(QWidget *parent) :
     QWidget(parent) {
     connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::initSceneFinished, this, &RuleWidget::updateRuleInfo);
-    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::flushOneFrame, this, &RuleWidget::updateRuleInfo);
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::updateProgress, this, &RuleWidget::updateRuleInfo);
 }
 
 RuleWidget::~RuleWidget() {

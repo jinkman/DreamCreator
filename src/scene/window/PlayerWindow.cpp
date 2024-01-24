@@ -4,6 +4,7 @@
 #include "scene/widget/ProcessDlg.h"
 #include "common/Common.h"
 #include "utils/GlobalMsgMgr.h"
+#include <QDateTime>
 
 namespace DM {
 
@@ -16,7 +17,7 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
     setupBottomWgt();
     getLayout()->setContentsMargins(3, 6, 3, 3);
     // 绑定相关事件
-    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::flushOneFrame, this, &PlayerWindow::onScenePlayerFlush);
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::updateProgress, this, &PlayerWindow::onPlayerProgressUpdate);
 }
 
 PlayerWindow::~PlayerWindow() {
@@ -29,16 +30,24 @@ void PlayerWindow::initSceneByFile(const QString &str) {
     setTimeToLabel(mLabelPlayTime, 0);
     // 播放
     mTimerStep = 1000.0f / mOpenGLWgt->getScenePlayer()->getVideoInfo().fps;
-    if (mTimer == nullptr) {
-        mTimer = new QTimer(this);
-        connect(mTimer, SIGNAL(timeout()), this, SLOT(flushNextFrame()));
+    if (mTimerFlushFrame == nullptr) {
+        mTimerFlushFrame = new QTimer(this);
+        connect(mTimerFlushFrame, SIGNAL(timeout()), this, SLOT(flushFrame()));
+    }
+
+    if (mTimerFlushProgress == nullptr) {
+        mTimerFlushProgress = new QTimer(this);
+        connect(mTimerFlushProgress, SIGNAL(timeout()), this, SLOT(flushProgress()));
     }
     emit GlobalMsgMgr::getInstance().initSceneFinished(mOpenGLWgt->getScenePlayer());
 }
 
 void PlayerWindow::closeScene() {
-    if (mTimer->isActive()) {
-        mTimer->stop();
+    if (mTimerFlushFrame->isActive()) {
+        mTimerFlushFrame->stop();
+    }
+    if (mTimerFlushProgress->isActive()) {
+        mTimerFlushProgress->stop();
     }
     mOpenGLWgt->closeScene();
     setTimeToLabel(mLabelTotolTime, 0);
@@ -120,8 +129,10 @@ void PlayerWindow::setupBottomWgt() {
     mPlayBtn->setFixedSize(20, 20);
     mPlayBtn->setIcon(QIcon(getQLocalPath("icon/play.png")));
     connect(mPlayBtn, &QPushButton::clicked, this, [=]() {
-        mPlayBtn->setIcon(QIcon(mTimer->isActive() ? getQLocalPath("icon/play.png") : getQLocalPath("icon/pause.png")));
-        mTimer->isActive() ? mTimer->stop() : mTimer->start(mTimerStep);
+        mPlayBtn->setIcon(QIcon(mTimerFlushFrame->isActive() ? getQLocalPath("icon/play.png") : getQLocalPath("icon/pause.png")));
+        mTimerFlushFrame->isActive() ? mTimerFlushFrame->stop() : mTimerFlushFrame->start(mTimerStep);
+        mTimerFlushProgress->isActive() ? mTimerFlushProgress->stop() : mTimerFlushProgress->start(1000.0f / 60.0f);
+        mLastTimestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
     });
 
     layout->addWidget(mLabelPlayTime);
@@ -147,7 +158,7 @@ void PlayerWindow::exportFile() {
     }
 }
 
-void PlayerWindow::onScenePlayerFlush(Player *scenePlayer) {
+void PlayerWindow::onPlayerProgressUpdate(Player *scenePlayer) {
     setTimeToLabel(mLabelTotolTime, scenePlayer->duration());
     setTimeToLabel(mLabelPlayTime, scenePlayer->currentTime());
 }
@@ -160,14 +171,20 @@ void PlayerWindow::setTimeToLabel(QLabel *label, DMTime t) {
     label->setText(QString("%1:%2:%3:%4").arg(hours, 2, 10, QLatin1Char('0')).arg(minutes, 2, 10, QLatin1Char('0')).arg(seconds, 2, 10, QLatin1Char('0')).arg(mSeconds, 3, 10, QLatin1Char('0')));
 }
 
-void PlayerWindow::flushNextFrame() {
+void PlayerWindow::flushFrame() {
+    mOpenGLWgt->update();
+}
+
+void PlayerWindow::flushProgress() {
     auto scenePlayer = mOpenGLWgt->getScenePlayer();
     if (scenePlayer == nullptr) {
         return;
     }
-    // 下一帧
-    scenePlayer->setProgress(scenePlayer->getProgress() + 1.0f / float(timeToFrame(scenePlayer->getVideoInfo().duration, scenePlayer->getVideoInfo().fps)));
-    mOpenGLWgt->update();
+    auto currentTimestap = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    auto step = currentTimestap - mLastTimestamp;
+    mLastTimestamp = currentTimestap;
+    scenePlayer->setProgress(scenePlayer->getProgress() + float(step) / float(scenePlayer->getVideoInfo().duration));
+    emit GlobalMsgMgr::getInstance().updateProgress(scenePlayer);
 }
 
 } // namespace DM
