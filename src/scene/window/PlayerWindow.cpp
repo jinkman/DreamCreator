@@ -90,7 +90,6 @@ void PlayerWindow::setupPlayer() {
     mOpenGLWgt = new OpenGLWidget(this);
     mOpenGLWgt->setMinimumSize(300, 300);
     getLayout()->addWidget(mOpenGLWgt);
-    connect(mOpenGLWgt, SIGNAL(scenePlayerFlushSignal(DMTime)), this, SLOT(onScenePlayerFlush(DMTime)));
 }
 
 void PlayerWindow::setupBottomWgt() {

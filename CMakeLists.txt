@@ -14,7 +14,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # 系统路径查找
-find_package(Qt5 COMPONENTS Widgets Concurrent REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Concurrent Network REQUIRED)
 
 # 设置输出路径
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -99,6 +99,7 @@ target_link_libraries(${PRO_NAME}
     PRIVATE
     Qt5::Widgets
     Qt5::Concurrent
+    Qt5::Network
     glm
     opencv_core
     opencv_video
