@@ -42,7 +42,7 @@ void VideoFootage::flush(DMTime t) {
         if (stepFrame < 0 || stepFrame > 10) { // 读取空帧，比跳帧划算
             mVideoCap.set(cv::CAP_PROP_POS_FRAMES, frame);
         } else {
-            for (int i = 0; i < stepFrame; i++) {
+            for (int i = 0; i < stepFrame - 1; i++) {
                 mVideoCap.read(matCache);
             }
         }
