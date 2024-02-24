@@ -36,9 +36,6 @@ public:
 
     std::shared_ptr<Footage> getFootage();
 
-signals:
-    void clickUpFootageSignal(std::shared_ptr<Footage> foogate);
-
 protected:
     void setupPAGFootage(std::shared_ptr<Footage> footage);
 

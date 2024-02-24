@@ -39,8 +39,18 @@
                             0.0,
                             0.0
                         ]
-                    }
-                },
+                    },
+                    "texts": [
+                        {
+                            "text": "测试pag"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "trackType": "footage",
+            "footages": [
                 {
                     "startTime": 5000,
                     "endTime": 10000,
@@ -66,7 +76,12 @@
                             0.0
                         ]
                     }
-                },
+                }
+            ]
+        },
+        {
+            "trackType": "footage",
+            "footages": [
                 {
                     "startTime": 10000,
                     "endTime": 15000,

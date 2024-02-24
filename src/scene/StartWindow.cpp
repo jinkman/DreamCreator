@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QPalette>
 #include <filesystem>
+#include <QMimeData>
 
 namespace DM {
 StartWindow::StartWindow(QWidget *parent, Qt::WindowFlags flags) :
@@ -21,6 +22,8 @@ StartWindow::StartWindow(QWidget *parent, Qt::WindowFlags flags) :
     setupToolBar();
 
     setupDockWidget();
+
+    setAcceptDrops(true);
 }
 
 void StartWindow::setupMenuBar() {
@@ -94,6 +97,34 @@ void StartWindow::openFile() {
         }
     }
     QMessageBox::warning(this, "内容错误", QString("json 文件文件不存在: %1").arg(fileName), QMessageBox::Yes);
+}
+
+void StartWindow::dragEnterEvent(QDragEnterEvent *event) {
+    // 如果放入的文件符合要求，则接受拖放操作
+    if (event->mimeData()->hasFormat("text/uri-list")) {
+        event->acceptProposedAction();
+    }
+}
+
+void StartWindow::dropEvent(QDropEvent *event) {
+    QList<QUrl> urls = event->mimeData()->urls();
+    if (urls.isEmpty())
+        return;
+
+    QString fileName = urls.first().toLocalFile();
+    if (fileName.isEmpty())
+        return;
+
+    QFileInfo info(fileName);
+    if (info.suffix() != "json" && info.suffix() != "txt") {
+        return;
+    }
+
+    if (std::filesystem::exists(fileName.toStdString().c_str())) {
+        emit openSceneSignal(fileName);
+    } else {
+        QMessageBox::warning(this, "内容错误", QString("json 文件文件不存在: %1").arg(fileName), QMessageBox::Yes);
+    }
 }
 
 } // namespace DM

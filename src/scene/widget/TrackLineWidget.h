@@ -19,10 +19,6 @@ public:
 public slots:
     void updateSceneWidthSlot(int v);
 
-signals:
-
-    void clickUpFootageSignal(std::shared_ptr<Footage> footage);
-
 protected:
     void setupTrackLine();
 

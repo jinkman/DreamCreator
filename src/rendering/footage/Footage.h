@@ -19,7 +19,9 @@ public:
 
     virtual ~Footage();
 
-    virtual void flush(DMTime t) = 0;
+    virtual void flush(DMTime t);
+
+    DMTime currentTime() const;
 
     DMTime startTime() const;
 
@@ -39,6 +41,10 @@ public:
 
     EFootageType getFootageType() const;
 
+    std::shared_ptr<Layer> getFootageLayer();
+
+    bool &footageVisible();
+
 protected:
     Footage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode);
 
@@ -46,6 +52,7 @@ protected:
     // 画面开始结束时间
     DMTime mStartTime = 0;
     DMTime mEndTime = 0;
+    DMTime mCurrentTime = 0;
     // 根结点
     std::shared_ptr<RootNode> mRootNode = nullptr;
     std::string mOriginPath = "";
@@ -55,6 +62,7 @@ protected:
     std::shared_ptr<Layer> mLayer = nullptr;
     // srt
     nlohmann::json mLayerJson = nlohmann::json::object();
+    bool bFootageVisible = true;
 };
 
 } // namespace DM

@@ -18,6 +18,8 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
     getLayout()->setContentsMargins(3, 6, 3, 3);
     // 绑定相关事件
     connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::updateProgress, this, &PlayerWindow::onPlayerProgressUpdate);
+
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::updateProperty, this, &PlayerWindow::flushFrame);
 }
 
 PlayerWindow::~PlayerWindow() {

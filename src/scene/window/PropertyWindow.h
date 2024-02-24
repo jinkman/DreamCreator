@@ -3,8 +3,7 @@
 
 #include "ContentWindow.h"
 #include "rendering/footage/Footage.h"
-#include "scene/widget/qtpropertybrowser/qttreepropertybrowser.h"
-#include "scene/widget/qtpropertybrowser/qtvariantproperty.h"
+#include "scene/widget/treeView/PropertyTreeWidget.h"
 
 namespace DM {
 
@@ -18,18 +17,13 @@ public:
 public slots:
     void clickUpFootageSlot(std::shared_ptr<Footage> footage);
 
-signals:
-    void updateSceneSignal();
-
 private:
     void setup();
 
     void updateScene();
 
 private:
-    QtTreePropertyBrowser *mTreeBrowser = nullptr;
-    QtVariantPropertyManager *mEditManager;
-    QMap<QtProperty *, QString> mPropertyToQString;
+    PropertyTreeWidget *mTreeBrowser = nullptr;
 };
 
 } // namespace DM

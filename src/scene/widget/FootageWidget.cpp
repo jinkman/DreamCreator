@@ -1,14 +1,15 @@
 #include "FootageWidget.h"
+#include "DividingRule.h"
+#include "rendering/footage/PAGFootage.h"
+// #include "rendering/footage/ImageFootage.h"
+#include "utils/GlobalMsgMgr.h"
+#include "rendering/footage/VideoFootage.h"
 #include <QPainter>
 #include <QLabel>
 #include <QIcon>
 #include <QScrollBar>
 #include <QMouseEvent>
 #include <common/Common.h>
-#include "DividingRule.h"
-#include "rendering/footage/PAGFootage.h"
-// #include "rendering/footage/ImageFootage.h"
-#include "rendering/footage/VideoFootage.h"
 
 namespace DM {
 
@@ -233,7 +234,7 @@ void FootageWidget::leaveEvent(QEvent *event) {
 void FootageWidget::mousePressEvent(QMouseEvent *event) {
     // 点击事件
     if (event->button() == Qt::LeftButton) {
-        emit clickUpFootageSignal(getFootage());
+        emit GlobalMsgMgr::getInstance().clickUpFootageSignal(getFootage());
     }
 }
 

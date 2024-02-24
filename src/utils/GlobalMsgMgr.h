@@ -3,6 +3,7 @@
 
 #include <QObject.h>
 #include <mutex>
+#include "rendering/footage/Footage.h"
 
 namespace DM {
 
@@ -40,6 +41,9 @@ signals:
 
     // 保存场景
     void saveFile(const QString &);
+
+    // 轨道画面点击事件
+    void clickUpFootageSignal(std::shared_ptr<Footage>);
 
 private:
     GlobalMsgMgr(QObject *parent = nullptr) :

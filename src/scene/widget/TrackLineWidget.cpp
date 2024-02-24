@@ -45,8 +45,6 @@ void TrackLineWidget::setupTrackLine() {
         auto proxy = mScene->addWidget(footageWgt);
         int startX = std::ceil(footage->startTime() / 1000.0f * oneSecondNoScaleStep);
         proxy->setPos(startX, 0);
-        // 绑定点击信号
-        connect(footageWgt, &FootageWidget::clickUpFootageSignal, this, &TrackLineWidget::clickUpFootageSignal);
     }
 }
 

@@ -22,6 +22,12 @@ private:
     void setupDockWidget();
 
     void closeEvent(QCloseEvent *e) override;
+
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) override;
+
+    void dropEvent(QDropEvent *event) override;
+
 private slots:
     void openFile();
 };
