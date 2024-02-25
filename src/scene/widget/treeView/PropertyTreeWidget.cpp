@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QColorDialog>
 #include <QPushButton>
+#include <iostream>
 
 namespace DM {
 
@@ -105,7 +106,7 @@ void PropertyTreeWidget::updateBasePropertyUI(QTreeWidgetItem *parent) {
     QTreeWidgetItem *scaleItem = new QTreeWidgetItem(transItem, QStringList() << "缩放");
     addVectorPropertyUI(scaleItem, {{&footageLayer->scale().x, -2.0, 2.0, "x轴"}, {&footageLayer->scale().y, -2.0, 2.0, "y轴"}});
     QTreeWidgetItem *rotateItem = new QTreeWidgetItem(transItem, QStringList() << "旋转");
-    // addVectorPropertyUI(rotateItem, {{&footageLayer->orientation().x, 0.0, 360.0, "角度"}});
+    addQuatPropertyUI(rotateItem, footageLayer->orientation());
     QTreeWidgetItem *translateItem = new QTreeWidgetItem(transItem, QStringList() << "平移");
     addVectorPropertyUI(translateItem, {{&footageLayer->translate().x, -2000.0, 2000.0, "x轴"}, {&footageLayer->translate().y, -2000.0, 2000.0, "y轴"}});
 }
@@ -304,6 +305,73 @@ void PropertyTreeWidget::addVectorPropertyUI(QTreeWidgetItem *parent, std::vecto
             updateSceneProperty();
         });
     }
+}
+
+void PropertyTreeWidget::addQuatPropertyUI(QTreeWidgetItem *parent, glm::quat &quat) {
+    QTreeWidgetItem *axisItem = new QTreeWidgetItem(parent, QStringList() << "旋转轴");
+    // 创建水平布局
+    QWidget *emptyWgt = new QWidget(this);
+    QHBoxLayout *layout = new QHBoxLayout(emptyWgt);
+    emptyWgt->setLayout(layout);
+
+    auto createDoubleSpinBox = [this, layout]() -> QDoubleSpinBox * {
+        QDoubleSpinBox *doubleSpinBox = new QDoubleSpinBox(this);
+        doubleSpinBox->setRange(0.0, 1.0); // 范围
+        doubleSpinBox->setSingleStep(1);
+        doubleSpinBox->setDecimals(3);
+        doubleSpinBox->setMaximumWidth(50);
+        layout->addWidget(doubleSpinBox);
+        return doubleSpinBox;
+    };
+
+    glm::vec3 axis = glm::axis(quat);
+    float angle = glm::angle(quat);
+
+    auto xItem = createDoubleSpinBox();
+    xItem->setValue(axis.x);
+    QObject::connect(xItem, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &quat](double value) {
+        glm::vec3 axis = glm::axis(quat);
+        axis.x = value;
+        quat = glm::angleAxis(glm::angle(quat), axis);
+        // 需要更新属性
+        updateSceneProperty();
+    });
+
+    auto yItem = createDoubleSpinBox();
+    yItem->setValue(axis.y);
+    QObject::connect(yItem, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &quat](double value) {
+        glm::vec3 axis = glm::axis(quat);
+        axis.y = value;
+        quat = glm::angleAxis(glm::angle(quat), axis);
+        // 需要更新属性
+        updateSceneProperty();
+    });
+
+    auto zItem = createDoubleSpinBox();
+    zItem->setValue(axis.z);
+    QObject::connect(zItem, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &quat](double value) {
+        glm::vec3 axis = glm::axis(quat);
+        axis.z = value;
+        quat = glm::angleAxis(glm::angle(quat), axis);
+        // 需要更新属性
+        updateSceneProperty();
+    });
+
+    this->setItemWidget(axisItem, 1, emptyWgt);
+
+    // 角度
+    auto [angleItem, doubleSlider, doubleSpinBox] = createDoubleTreeWidgetItem(parent, 3, "角度", 0.0, 360.0);
+    doubleSlider->setValue(glm::degrees(angle));
+    doubleSpinBox->setValue(glm::degrees(angle));
+    QObject::connect(doubleSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, &quat, xItem, yItem, zItem](double value) {
+        glm::vec3 axis = glm::axis(quat);
+        xItem->setValue(axis.x);
+        yItem->setValue(axis.y);
+        zItem->setValue(axis.z);
+        quat = glm::angleAxis(glm::radians(float(value)), glm::axis(quat));
+        // 需要更新属性
+        updateSceneProperty();
+    });
 }
 
 std::tuple<QTreeWidgetItem *, DoubleSliderWidget *, QDoubleSpinBox *> PropertyTreeWidget::createDoubleTreeWidgetItem(QTreeWidgetItem *parent, int decimals, const QString &name, double min, double max) {

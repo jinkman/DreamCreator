@@ -3,6 +3,7 @@
 #include <fstream>
 #include <filesystem>
 #include "common/Common.h"
+#include <limits>
 
 namespace DM {
 
@@ -88,7 +89,7 @@ std::filesystem::path RootNode::getRootPath() const {
 void RootNode::preDraw() {
     mImageShader->use();
     mImageShader->setBool("bFlipY", false);
-    mImageShader->setMat4("projection", glm::ortho(0.0f, float(width()), 0.0f, float(height())));
+    mImageShader->setMat4("projection", glm::ortho(0.0f, float(width()), 0.0f, float(height()), std::numeric_limits<float>::min(), std::numeric_limits<float>::max()));
     mImageShader->setMat4("model", glm::mat4(1.0f));
     mImageShader->unUse();
     GLUtils::Get()->setViewPort(Rect::MakeWH(float(width()), float(height())));

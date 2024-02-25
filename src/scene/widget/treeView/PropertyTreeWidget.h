@@ -57,6 +57,8 @@ private:
 
     void addVectorPropertyUI(QTreeWidgetItem *parent, std::vector<DoubleSliderInfo> info);
 
+    void addQuatPropertyUI(QTreeWidgetItem *parent, glm::quat &quat);
+
 private:
     std::tuple<QTreeWidgetItem *, DoubleSliderWidget *, QDoubleSpinBox *> createDoubleTreeWidgetItem(QTreeWidgetItem *parent, int decimals, const QString &name, double min, double max);
 
