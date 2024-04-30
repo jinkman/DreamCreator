@@ -40,9 +40,10 @@ list(APPEND INCLUDES_DIR ${SRC_DIR}/common)
 list(APPEND INCLUDES_DIR ${third-party-path}/json/single_include)
 
 # 添加pag
-list(APPEND INCLUDES_DIR ${third-party-path}/deploy/libpag/libpag/include)
+list(APPEND INCLUDES_DIR ${third-party-path}/deploy/libpag/include)
 
-file(GLOB PAG_LIBS ${third-party-path}/deploy/libpag/libpag/mac/arm64/*.a)
+file(GLOB PAG_LIBS ${third-party-path}/deploy/libpag/arm64/*.a)
+
 file(GLOB SWIFTSHADER_LIBS ${third-party-path}/deploy/libpag/swiftshader/mac/arm64/*.*)
 
 # 配置文件

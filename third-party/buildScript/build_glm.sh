@@ -8,9 +8,9 @@ echo "--- build ${package} ---"
 
 cd "$workdir/" && \
 mkdir -p "$workdir/build" && cd "$workdir/build/" && \
-cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX="$workdir/../deploy/$package" ../ && \
-make -j 12 && \
-make install
+cmake -DCMAKE_CXX_STANDARD=17 -DGLM_TEST_ENABLE=ON -DCMAKE_INSTALL_PREFIX="$workdir/../deploy/$package" ../ && \
+cmake --build ./ && \
+cmake --install ./
 
 if [[ $? -ne 0 ]]; then
     echo "ERROR: Failed to build ${package}"
