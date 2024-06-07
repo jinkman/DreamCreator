@@ -2,7 +2,6 @@
 #include <QResizeEvent>
 #include <QFileDialog>
 #include "scene/widget/ProcessDlg.h"
-#include "common/Common.h"
 #include "utils/GlobalMsgMgr.h"
 #include <QDateTime>
 
@@ -41,7 +40,7 @@ void PlayerWindow::initSceneByFile(const QString &str) {
         mTimerFlushProgress = new QTimer(this);
         connect(mTimerFlushProgress, SIGNAL(timeout()), this, SLOT(flushProgress()));
     }
-    emit GlobalMsgMgr::getInstance().initSceneFinished(mOpenGLWgt->getScenePlayer());
+    emit GlobalMsgMgr::getInstance().initSceneFinished(mOpenGLWgt -> getScenePlayer());
 }
 
 void PlayerWindow::closeScene() {
@@ -78,8 +77,8 @@ void PlayerWindow::setupTitle() {
                                "QPushButton::!hover{\n"
                                "    color: rgb(255, 255, 255);\n"
                                "}\n")
-                           .arg(getQLocalPath("icon/menuOpen_normal.png"))
-                           .arg(getQLocalPath("icon/menuOpen_notNormal.png")));
+                           .arg(":/data/icon/menuOpen_normal.png")
+                           .arg(":/data/icon/menuOpen_notNormal.png"));
     btn->setFixedSize(20, 20);
 
     layout->addWidget(lable);
@@ -128,9 +127,9 @@ void PlayerWindow::setupBottomWgt() {
                                     "    background:transparent;\n"
                                     "}\n"));
     mPlayBtn->setFixedSize(20, 20);
-    mPlayBtn->setIcon(QIcon(getQLocalPath("icon/play.png")));
+    mPlayBtn->setIcon(QIcon(":/data/icon/play.png"));
     connect(mPlayBtn, &QPushButton::clicked, this, [=]() {
-        mPlayBtn->setIcon(QIcon(mTimerFlushFrame->isActive() ? getQLocalPath("icon/play.png") : getQLocalPath("icon/pause.png")));
+        mPlayBtn->setIcon(QIcon(mTimerFlushFrame->isActive() ? ":/data/icon/play.png" : ":/data/icon/pause.png"));
         mTimerFlushFrame->isActive() ? mTimerFlushFrame->stop() : mTimerFlushFrame->start(mTimerStep);
         mTimerFlushProgress->isActive() ? mTimerFlushProgress->stop() : mTimerFlushProgress->start(1000.0f / 60.0f);
         mLastTimestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();

@@ -1,7 +1,6 @@
 #include "TrackControllerWidget.h"
 #include <QLabel>
 #include <QToolButton>
-#include <common/Common.h>
 
 namespace DM {
 
@@ -24,7 +23,7 @@ TrackControllerWidget::TrackControllerWidget(QWidget *parent) :
     for (int i = 0; i < 3; i++) {
         QToolButton *btn = new QToolButton(this);
         btn->setFixedSize(25, 25);
-        btn->setIcon(QIcon(getQLocalPath("icon/play.png")));
+        btn->setIcon(QIcon(":/data/icon/play.png"));
         btn->setIconSize(QSize(20, 20));
         btn->setStyleSheet(QString("QToolButton{\n"
                                    "    color:white;\n"

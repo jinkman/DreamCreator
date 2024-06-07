@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>data/icon/play.png</file>
+    <file>data/icon/pause.png</file>
+    <file>data/icon/menuOpen_normal.png</file>
+     <file>data/icon/menuOpen_notNormal.png</file>
+</qresource>
+</RCC>

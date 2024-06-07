@@ -1,7 +1,6 @@
 #include "TrackWindow.h"
 #include <QHBoxLayout>
 #include <QToolButton>
-#include <common/Common.h>
 #include "scene/widget/TrackControllerWidget.h"
 #include "scene/widget/TrackLineWidget.h"
 #include <QSplitter>
@@ -36,7 +35,7 @@ void TrackWindow::setupTitle() {
     for (int i = 0; i < 6; i++) {
         QToolButton *btn = new QToolButton(titleLabel);
         btn->setFixedSize(25, 25);
-        btn->setIcon(QIcon(getQLocalPath("icon/play.png")));
+        btn->setIcon(QIcon(":/data/icon/play.png"));
         btn->setIconSize(QSize(20, 20));
         btn->setStyleSheet(QString("QToolButton{\n"
                                    "    color:white;\n"

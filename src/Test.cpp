@@ -2,11 +2,13 @@
 #include <QSurfaceFormat>
 #include <QApplication>
 #include <pag/pag.h>
-#include "common/Common.h"
+#include <filesystem>
 
 int main(int argc, char **argv) {
+    std::filesystem::path appPath(argv[0]);
     // 注册默认回退字体
-    pag::PAGFont::SetFallbackFontPaths({DM::getLocalPath("fonts/NotoSansCJKsc-Regular.woff")}, {0});
+    std::filesystem::path fontPath = appPath.parent_path() / "../Resources/fonts/";
+    pag::PAGFont::SetFallbackFontPaths({(fontPath / "NotoSansCJKsc-Regular.woff").string()}, {0});
 
     QSurfaceFormat format;
     format.setMajorVersion(3);

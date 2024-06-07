@@ -3,7 +3,6 @@
 #include <QToolButton>
 #include <QSplitter>
 #include <QLabel>
-#include <common/Common.h>
 #include <QDebug>
 
 namespace DM {
@@ -21,15 +20,15 @@ void ResourcesWindow::setup() {
     static const std::vector<
         std::tuple<QString, QString, QString>>
         contentItem = {
-            {"媒体", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
-            {"音频", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
-            {"文本", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
-            {"贴纸", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
-            {"特效", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
-            {"转场", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
-            {"滤镜", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
-            {"调节", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")},
-            {"模板", getQLocalPath("icon/play.png"), getQLocalPath("icon/play.png")}};
+            {"媒体", ":/data/icon/play.png", ":/data/icon/play.png"},
+            {"音频", ":/data/icon/play.png", ":/data/icon/play.png"},
+            {"文本", ":/data/icon/play.png", ":/data/icon/play.png"},
+            {"贴纸", ":/data/icon/play.png", ":/data/icon/play.png"},
+            {"特效", ":/data/icon/play.png", ":/data/icon/play.png"},
+            {"转场", ":/data/icon/play.png", ":/data/icon/play.png"},
+            {"滤镜", ":/data/icon/play.png", ":/data/icon/play.png"},
+            {"调节", ":/data/icon/play.png", ":/data/icon/play.png"},
+            {"模板", ":/data/icon/play.png", ":/data/icon/play.png"}};
 
     auto titleLabel = getTitleWidget();
     titleLabel->setContentsMargins(10, 0, 10, 0);

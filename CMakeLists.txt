@@ -22,10 +22,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # 三方库路径
 set(third-party-path ${CMAKE_CURRENT_SOURCE_DIR}/third-party)
 
-# Data路径
-set(data-path ${CMAKE_CURRENT_SOURCE_DIR}/data)
-set(DATA_PATH ${data-path}/)
-
 # 添加三方库
 set(glm_DIR ${third-party-path}/glm/deploy/lib/cmake/glm)
 find_package(glm REQUIRED)
@@ -46,20 +42,25 @@ file(GLOB PAG_LIBS ${third-party-path}/deploy/libpag/arm64/*.a)
 
 file(GLOB SWIFTSHADER_LIBS ${third-party-path}/deploy/libpag/swiftshader/mac/arm64/*.*)
 
-# 配置文件
-configure_file(
-    "${SRC_DIR}/common/Config.h.in"
-    "${SRC_DIR}/common/Config.h"
-)
-
 # 遍历源代码文件，构建工程
-file(GLOB_RECURSE SRC_CPP ${SRC_DIR}/*.cpp ${SRC_DIR}/*.c)
+file(GLOB_RECURSE SRC_CPP ${SRC_DIR}/*.cpp ${SRC_DIR}/*.c ${SRC_DIR}/*.frag ${SRC_DIR}/*.vert)
 file(GLOB_RECURSE SRC_H ${SRC_DIR}/*.h ${SRC_DIR}/*.hpp)
+
+# 需要拷贝字体 icons
+set(MACOSX_BUNDLE_ICON_FILE app.icns)
+set(APP_ICON_MACOSX ${CMAKE_CURRENT_SOURCE_DIR}/data/icon/app.icns)
+set_source_files_properties(${APP_ICON_MACOSX} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+
+file(GLOB_RECURSE FONT_FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/fonts/*.woff)
+set_source_files_properties(${FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/fonts")
 
 add_executable(${PRO_NAME}
     MACOSX_BUNDLE
     ${SRC_CPP}
     ${SRC_H}
+    ${FONT_FILES}
+    ${APP_ICON_MACOSX}
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources.qrc
 )
 
 target_include_directories(${PRO_NAME}

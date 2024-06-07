@@ -9,7 +9,6 @@
 #include <QIcon>
 #include <QScrollBar>
 #include <QMouseEvent>
-#include <common/Common.h>
 
 namespace DM {
 

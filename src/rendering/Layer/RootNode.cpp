@@ -2,10 +2,17 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
-#include "common/Common.h"
 #include <limits>
 
 namespace DM {
+
+static const char IMAGE_FRAG_SHADER[] = {
+#include "shaders/ImageLayer.frag"
+};
+
+static const char IMAGE_VERT_SHADER[] = {
+#include "shaders/ImageLayer.vert"
+};
 
 std::shared_ptr<RootNode> RootNode::creatRootNodeByFile(const QString &jstr) {
     std::filesystem::path filePath(jstr.toStdString());
@@ -104,7 +111,7 @@ void RootNode::postDraw() {
 
 void RootNode::initialize() {
     GLUtils::Get();
-    mImageShader = std::make_shared<Shader>(getLocalPath("shaders/ImageLayer.vert").c_str(), getLocalPath("shaders/ImageLayer.frag").c_str());
+    mImageShader = std::make_shared<Shader>(IMAGE_VERT_SHADER, IMAGE_FRAG_SHADER);
 }
 
 } // namespace DM

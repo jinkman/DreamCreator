@@ -3,7 +3,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QTreeView>
-#include <common/Common.h>
 
 namespace DM {
 
