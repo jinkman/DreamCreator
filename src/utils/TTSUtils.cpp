@@ -14,8 +14,8 @@ const QString longEmotionSubmitUrl = "https://openspeech.bytedance.com/api/v1/tt
 const QString longEmotionQueryUrl = "https://openspeech.bytedance.com/api/v1/tts_async_with_emotion/query";
 const QString ttsUrl = "https://openspeech.bytedance.com/api/v1/tts";
 
-const QString appid = "3336699363";
-const QString accessToken = "O_4oMXzDoZbibo7i-yhIX1MlUvwdefJq";
+const QString appid = "id";
+const QString accessToken = "token";
 
 TTSUtils &TTSUtils::getInstance() {
     static TTSUtils instance;
