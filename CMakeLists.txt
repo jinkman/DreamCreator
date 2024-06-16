@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_compile_options(-Wno-nonportable-include-path)
 
+# QT调试需要设置编译类型
+set(CMAKE_SYSTEM_PROCESSOR "arm64")
+set(CMAKE_OSX_ARCHITECTURES "arm64")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
