@@ -39,7 +39,7 @@ void PropertyWindow::setup() {
 void PropertyWindow::updateScene() {
 }
 
-void PropertyWindow::clickUpFootageSlot(std::shared_ptr<Footage> footage) {
+void PropertyWindow::clickUpFootageSlot(Footage *footage) {
     mTreeBrowser->updateUI(footage);
 }
 

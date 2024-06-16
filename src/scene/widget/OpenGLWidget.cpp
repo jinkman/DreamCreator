@@ -9,7 +9,7 @@ namespace DM {
 OpenGLWidget::OpenGLWidget(QWidget *parent) :
     QOpenGLWidget(parent) {
     connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::exportFile, this, &OpenGLWidget::exportVideo);
-    // connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::saveFile, this, &OpenGLWidget::saveFile);
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::seekToTimeByRule, this, &OpenGLWidget::seekToTime);
 }
 
 OpenGLWidget::~OpenGLWidget() {
@@ -80,6 +80,14 @@ void OpenGLWidget::paintGL() {
         // 发送全局信号
         emit GlobalMsgMgr::getInstance().flushOneFrame(mPlayer.get());
     }
+}
+
+void OpenGLWidget::seekToTime(const DMTime &t) {
+    if (mPlayer == nullptr) {
+        return;
+    }
+    mPlayer->setProgress(float(t) / float(mPlayer->duration()));
+    update();
 }
 
 } // namespace DM

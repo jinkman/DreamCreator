@@ -22,12 +22,9 @@ VideoFootage::~VideoFootage() {
 
 void VideoFootage::flush(DMTime t) {
     Footage::flush(t);
-    if (t < startTime() || t >= endTime()) { // 不可见
-        mLayer->visible() = false;
+    if (!timelineVisible()) {
         return;
     }
-
-    mLayer->visible() = footageVisible();
     double ratio = double(t - startTime()) / double(duration());
     DMTime interceptTime = mResStartTime + DMTime((mResEndTime - mResStartTime) * ratio);
 

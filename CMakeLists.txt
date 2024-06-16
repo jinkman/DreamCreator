@@ -32,7 +32,7 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # 添加头文件
 list(APPEND INCLUDES_DIR ${SRC_DIR}/)
-list(APPEND INCLUDES_DIR ${SRC_DIR}/common)
+list(APPEND INCLUDES_DIR ${SRC_DIR}/utils/stb_image)
 list(APPEND INCLUDES_DIR ${third-party-path}/json/single_include)
 
 # 添加pag

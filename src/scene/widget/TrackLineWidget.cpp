@@ -6,7 +6,7 @@
 
 namespace DM {
 
-TrackLineWidget::TrackLineWidget(std::shared_ptr<Track> track, int sceneWidth, QWidget *parent) :
+TrackLineWidget::TrackLineWidget(Track *track, int sceneWidth, QWidget *parent) :
     QGraphicsView(parent), mTrack(track) {
     mScene = new QGraphicsScene(this);
     mScene->setSceneRect(0, 0, sceneWidth, 50);
@@ -32,14 +32,14 @@ void TrackLineWidget::updateSceneWidthSlot(int v) {
 }
 
 void TrackLineWidget::setupTrackLine() {
-    auto footageTrack = std::dynamic_pointer_cast<FootageTrack>(mTrack);
+    auto footageTrack = static_cast<FootageTrack *>(mTrack);
     if (footageTrack == nullptr) {
         return;
     }
     auto footages = footageTrack->getFootages();
     for (auto &footage : footages) {
         FootageWidget *footageWgt = new FootageWidget(nullptr);
-        footageWgt->updateFootage(footage);
+        footageWgt->updateFootage(footage.get());
         auto proxy = mScene->addWidget(footageWgt);
         int startX = std::ceil(footage->startTime() / 1000.0f * oneSecondNoScaleStep);
         proxy->setPos(startX, 0);

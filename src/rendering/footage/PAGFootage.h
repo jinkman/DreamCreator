@@ -104,7 +104,7 @@ public:
 
     bool readPixels(pag::ColorType colorType, pag::AlphaType alphaType, void *dstPixels, size_t dstRowBytes);
 
-    std::shared_ptr<pag::PAGFile> getPAGFile();
+    pag::PAGFile *getPAGFile();
 
     std::vector<std::shared_ptr<ReplaceSlice>> getReplaceInfo() const;
 

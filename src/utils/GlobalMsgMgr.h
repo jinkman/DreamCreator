@@ -33,6 +33,9 @@ signals:
     // 属性框更新
     void updateProperty();
 
+    // 更新场景
+    void updateScene();
+
     // 轨道浏览器更新
     void updateTrack();
 
@@ -43,7 +46,16 @@ signals:
     void saveFile(const QString &);
 
     // 轨道画面点击事件
-    void clickUpFootageSignal(std::shared_ptr<Footage>);
+    void clickUpFootageSignal(Footage *);
+
+    // 关闭场景，退出
+    void closeScene();
+
+    // 加载协议成功
+    void loadProtocolFinish(const nlohmann::json &, const QString &);
+
+    // 进度条seek
+    void seekToTimeByRule(const DMTime &t);
 
 private:
     GlobalMsgMgr(QObject *parent = nullptr) :

@@ -12,7 +12,7 @@ namespace DM {
 class TrackLineWidget : public QGraphicsView {
     Q_OBJECT
 public:
-    explicit TrackLineWidget(std::shared_ptr<Track> track, int sceneWidth, QWidget *parent = nullptr);
+    explicit TrackLineWidget(Track *track, int sceneWidth, QWidget *parent = nullptr);
 
     ~TrackLineWidget();
 
@@ -25,7 +25,7 @@ protected:
 private:
     QGraphicsScene *mScene = nullptr;
     QHBoxLayout *mLayout = nullptr;
-    std::shared_ptr<Track> mTrack = nullptr;
+    Track *mTrack = nullptr;
 };
 } // namespace DM
 

@@ -10,11 +10,21 @@ namespace DM {
 
 RuleWidget::RuleWidget(QWidget *parent) :
     QWidget(parent) {
-    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::initSceneFinished, this, &RuleWidget::updateRuleInfo);
-    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::updateProgress, this, &RuleWidget::updateRuleInfo);
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::updateProgress, [this](Player *player) {
+        setCurentTime(player->currentTime());
+    });
+
+    connect(&GlobalMsgMgr::getInstance(), &GlobalMsgMgr::initSceneFinished, [this](Player *player) {
+        setDuration(player->duration());
+    });
 }
 
 RuleWidget::~RuleWidget() {
+}
+
+void RuleWidget::setDuration(const DMTime &v) {
+    mDuration = v;
+    updateRule();
 }
 
 void RuleWidget::updateRule() {
@@ -33,9 +43,17 @@ void RuleWidget::updateRule() {
     update();
 }
 
-void RuleWidget::updateRuleInfo(Player *scenePlayer) {
-    mCurrentTime = scenePlayer->currentTime();
-    mDuration = scenePlayer->duration();
+void RuleWidget::seekToTimeUI(DMTime t) {
+    DMTime currentT = std::max(DMTime(0), std::min(t, mDuration - 1));
+    setCurentTime(currentT);
+    emit GlobalMsgMgr::getInstance().seekToTimeByRule(currentT);
+}
+
+void RuleWidget::setCurentTime(const DMTime &v) {
+    if (mCurrentTime == v) {
+        return;
+    }
+    mCurrentTime = v;
     updateRule();
 }
 
@@ -63,6 +81,31 @@ void RuleWidget::paintEvent(QPaintEvent *event) {
 void RuleWidget::resizeEvent(QResizeEvent *event) {
     emit sizeChanged(event->size());
     QWidget::resizeEvent(event);
+}
+
+void RuleWidget::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        float xPos = event->pos().x() / oneSecondNoScaleStep;
+        seekToTimeUI(xPos * 1000);
+        mLeftButtonPressed = true;
+    }
+
+    QWidget::mousePressEvent(event);
+}
+
+void RuleWidget::mouseMoveEvent(QMouseEvent *event) {
+    if (mLeftButtonPressed) {
+        float xPos = event->pos().x() / oneSecondNoScaleStep;
+        seekToTimeUI(xPos * 1000);
+    }
+    QWidget::mouseMoveEvent(event);
+}
+
+void RuleWidget::mouseReleaseEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        mLeftButtonPressed = false;
+    }
+    QWidget::mouseReleaseEvent(event);
 }
 
 DividingRule::DividingRule(QWidget *parent) :

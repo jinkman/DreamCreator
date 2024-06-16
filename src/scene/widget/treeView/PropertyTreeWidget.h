@@ -27,7 +27,7 @@ public:
 
     ~PropertyTreeWidget();
 
-    void updateUI(std::shared_ptr<Footage> footage);
+    void updateUI(Footage *footage);
 
 private:
     void updateBasePropertyUI(QTreeWidgetItem *parent);
@@ -65,7 +65,7 @@ private:
     void updateSceneProperty();
 
 private:
-    std::shared_ptr<Footage> mFootage = nullptr;
+    Footage *mFootage = nullptr;
 };
 } // namespace DM
 

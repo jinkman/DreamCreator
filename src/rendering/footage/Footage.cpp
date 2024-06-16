@@ -31,6 +31,15 @@ Footage::Footage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode) {
 
 void Footage::flush(DMTime t) {
     mCurrentTime = t;
+    bTimeLineVisible = t >= startTime() && t < endTime();
+    if (mLayer) { // 不可见
+        mLayer->visible() = bTimeLineVisible;
+    }
+    if (!bTimeLineVisible) {
+        return;
+    }
+
+    mLayer->visible() = footageVisible();
 }
 
 DMTime Footage::currentTime() const {
@@ -74,12 +83,16 @@ EFootageType Footage::getFootageType() const {
     return mFootageType;
 }
 
-std::shared_ptr<Layer> Footage::getFootageLayer() {
-    return mLayer;
+Layer *Footage::getFootageLayer() {
+    return mLayer.get();
 }
 
 bool &Footage::footageVisible() {
     return bFootageVisible;
+}
+
+bool Footage::timelineVisible() {
+    return bTimeLineVisible;
 }
 
 } // namespace DM

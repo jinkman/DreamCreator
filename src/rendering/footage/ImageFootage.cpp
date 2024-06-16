@@ -1,6 +1,6 @@
 #include "ImageFootage.h"
 #include "rendering/layer/ImageLayer.h"
-#include "common/stb_image.h"
+#include "stb_image.h"
 
 namespace DM {
 
@@ -21,12 +21,6 @@ ImageFootage::~ImageFootage() {
 
 void ImageFootage::flush(DMTime t) {
     Footage::flush(t);
-    if (t < startTime() || t >= endTime()) { // 不可见
-        mLayer->visible() = false;
-        return;
-    }
-
-    mLayer->visible() = footageVisible();
 }
 
 void ImageFootage::updateResources(const std::string &path) {

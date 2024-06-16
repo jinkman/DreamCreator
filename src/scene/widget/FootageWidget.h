@@ -8,8 +8,6 @@
 #include <opencv2/opencv.hpp>
 namespace DM {
 
-typedef std::function<cv::Mat(int, int, int)> FrameRecordFunc;
-
 class ImageLabel : public QLabel {
     Q_OBJECT
 public:
@@ -26,28 +24,24 @@ private:
     bool mIsIn;
 };
 
-class FootageWidget : public QScrollArea {
+class FootageWidget : public QWidget {
     Q_OBJECT
 public:
     FootageWidget(QWidget *parent = 0);
     ~FootageWidget();
 
-    void updateFootage(std::shared_ptr<Footage> footage);
+    void updateFootage(Footage *footage);
 
-    std::shared_ptr<Footage> getFootage();
+    Footage *getFootage();
 
 protected:
-    void setupPAGFootage(std::shared_ptr<Footage> footage);
+    void setupPAGFootage(Footage *footage);
 
-    void setupImageFootage(std::shared_ptr<Footage> footage);
+    void setupImageFootage(Footage *footage);
 
-    void setupVideoFootage(std::shared_ptr<Footage> footage);
+    void setupVideoFootage(Footage *footage);
 
     void setupWidget();
-
-    void initImageFrameByRecorder(int footageWid, int footageHei, FrameRecordFunc frameRecord);
-
-    virtual void paintEvent(QPaintEvent *event) override;
 
     virtual void enterEvent(QEvent *event) override;
 
@@ -55,10 +49,14 @@ protected:
 
     virtual void mousePressEvent(QMouseEvent *event) override;
 
+    int getOneWidth(const int &footageWid, const int &footageHei);
+
+    void createImageLabel(const std::vector<QPixmap> &mapList, int oneWidth);
+
 private:
     QHBoxLayout *mMainLayout = nullptr;
     std::vector<ImageLabel *> mLabelVec;
-    std::shared_ptr<Footage> mFootage = nullptr;
+    Footage *mFootage = nullptr;
 };
 
 } // namespace DM

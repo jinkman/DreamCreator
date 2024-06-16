@@ -6,7 +6,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <utils/LogUtils.h>
+#include <utils/log/LogUtils.h>
 
 namespace DM {
 

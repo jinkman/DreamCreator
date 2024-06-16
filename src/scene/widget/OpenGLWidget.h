@@ -28,6 +28,10 @@ protected:
 
     virtual void paintGL() override;
 
+private slots:
+
+    void seekToTime(const DMTime &t);
+
 private:
     // player
     std::shared_ptr<Player> mPlayer = nullptr;

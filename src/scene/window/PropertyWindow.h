@@ -15,7 +15,7 @@ public:
     ~PropertyWindow();
 
 public slots:
-    void clickUpFootageSlot(std::shared_ptr<Footage> footage);
+    void clickUpFootageSlot(Footage *footage);
 
 private:
     void setup();

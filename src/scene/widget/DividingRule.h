@@ -7,9 +7,8 @@
 
 namespace DM {
 
-const float oneSecondNoScaleStep = 50.0f;
+const float oneSecondNoScaleStep = 150.0f;
 
-class Player;
 // 刻度尺相关
 class RuleWidget : public QWidget {
     Q_OBJECT
@@ -17,6 +16,10 @@ public:
     explicit RuleWidget(QWidget *parent = 0);
 
     ~RuleWidget();
+
+    void setDuration(const DMTime &v);
+
+    void setCurentTime(const DMTime &v);
 
     // 坐标刻度信息
     struct RuleSliceInfo {
@@ -29,21 +32,27 @@ public:
 signals:
     void sizeChanged(const QSize &);
 
-private slots:
-    void updateRuleInfo(Player *);
-
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
 
     virtual void resizeEvent(QResizeEvent *event) override;
 
+    virtual void mousePressEvent(QMouseEvent *event) override;
+
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
+
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
+
     // 更新坐标尺
     void updateRule();
+
+    void seekToTimeUI(DMTime t);
 
 private:
     DMTime mDuration = 0;    // 总时长
     DMTime mCurrentTime = 0; // 当前时长
     std::vector<RuleSliceInfo> mRuleSliceInfos;
+    bool mLeftButtonPressed = false;
 };
 
 // 刻度尺相关

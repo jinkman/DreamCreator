@@ -56,7 +56,11 @@ PropertyTreeWidget::PropertyTreeWidget(QWidget *parent) :
 PropertyTreeWidget::~PropertyTreeWidget() {
 }
 
-void PropertyTreeWidget::updateUI(std::shared_ptr<Footage> footage) {
+void PropertyTreeWidget::updateUI(Footage *footage) {
+    // 无变化
+    if (footage == mFootage) {
+        return;
+    }
     this->clear();
     mFootage = footage;
     if (mFootage == nullptr) {
@@ -80,7 +84,14 @@ void PropertyTreeWidget::updateUI(std::shared_ptr<Footage> footage) {
         this->addTopLevelItem(videoItem);
     }
 
-    // this->expandAll();
+    // 默认展开二级目录
+    for (int i = 0; i < topLevelItemCount(); ++i) {
+        auto item = topLevelItem(i);
+        item->setExpanded(true);
+        for (int j = 0; j < item->childCount(); ++j) {
+            item->child(j)->setExpanded(true);
+        }
+    }
 }
 
 void PropertyTreeWidget::updateBasePropertyUI(QTreeWidgetItem *parent) {
@@ -113,7 +124,7 @@ void PropertyTreeWidget::updateBasePropertyUI(QTreeWidgetItem *parent) {
 
 void PropertyTreeWidget::updatePagPropertyUI(QTreeWidgetItem *parent) {
     // 富文本信息
-    for (auto &replaceSlice : std::dynamic_pointer_cast<PAGFootage>(mFootage)->getReplaceInfo()) {
+    for (auto &replaceSlice : static_cast<PAGFootage *>(mFootage)->getReplaceInfo()) {
         addDocumentPropertyUI(parent, replaceSlice);
     }
 }
@@ -123,7 +134,7 @@ void PropertyTreeWidget::addDocumentPropertyUI(QTreeWidgetItem *parent, std::sha
 
     int editableIndex = replaceSlice->editableIndex.has_value() ? replaceSlice->editableIndex.value() : 0;
 
-    auto layerDocument = std::static_pointer_cast<PAGFootage>(mFootage)->getPAGFile()->getTextData(editableIndex);
+    auto layerDocument = static_cast<PAGFootage *>(mFootage)->getPAGFile()->getTextData(editableIndex);
     // document
     if (layerDocument == nullptr) {
         return;

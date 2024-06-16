@@ -99,11 +99,9 @@ PAGFootage::~PAGFootage() {
 
 void PAGFootage::flush(DMTime t) {
     Footage::flush(t);
-    if (t < startTime() || t >= endTime()) { // 不可见
-        mLayer->visible() = false;
+    if (!timelineVisible()) {
         return;
     }
-
     // 需要替换内容
     auto pagFile = getPAGFile();
     for (auto &replaceSlice : mRepalceInfoList) {
@@ -116,7 +114,6 @@ void PAGFootage::flush(DMTime t) {
         pagFile->replaceText(editableIndex, doc);
     }
 
-    mLayer->visible() = footageVisible();
     double ratio = double(t - startTime()) / double(duration());
     DMTime interceptTime = mResStartTime + DMTime((mResEndTime - mResStartTime) * ratio);
     auto pagPlayer = std::static_pointer_cast<PAGLayer>(mLayer)->getPAGPlayer();
@@ -163,8 +160,8 @@ bool PAGFootage::readPixels(pag::ColorType colorType, pag::AlphaType alphaType, 
     return pagPlayer->getSurface()->readPixels(colorType, alphaType, dstPixels, dstRowBytes);
 }
 
-std::shared_ptr<pag::PAGFile> PAGFootage::getPAGFile() {
-    return std::static_pointer_cast<PAGLayer>(mLayer)->getPAGFile();
+pag::PAGFile *PAGFootage::getPAGFile() {
+    return std::static_pointer_cast<PAGLayer>(mLayer)->getPAGFile().get();
 }
 
 std::vector<std::shared_ptr<ReplaceSlice>> PAGFootage::getReplaceInfo() const {

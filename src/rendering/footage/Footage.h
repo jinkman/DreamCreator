@@ -41,9 +41,11 @@ public:
 
     EFootageType getFootageType() const;
 
-    std::shared_ptr<Layer> getFootageLayer();
+    Layer *getFootageLayer();
 
     bool &footageVisible();
+
+    bool timelineVisible();
 
 protected:
     Footage(const nlohmann::json &obj, std::shared_ptr<RootNode> rtNode);
@@ -63,6 +65,7 @@ protected:
     // srt
     nlohmann::json mLayerJson = nlohmann::json::object();
     bool bFootageVisible = true;
+    bool bTimeLineVisible = true;
 };
 
 } // namespace DM

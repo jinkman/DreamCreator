@@ -107,7 +107,7 @@ void TrackWindow::updateTrackInfo(Player *scenePlayer) {
     for (auto track : tracks) {
         TrackControllerWidget *controllerWgt = new TrackControllerWidget(mTrackControllerManager);
         mTrackControllerManager->getMainLayout()->addWidget(controllerWgt);
-        auto trackLineWgt = new TrackLineWidget(track, mDividingRule->widget()->width(), mTrackVisitorManager);
+        auto trackLineWgt = new TrackLineWidget(track.get(), mDividingRule->widget()->width(), mTrackVisitorManager);
         // 绑定长度
         QObject::connect(mDividingRule, &DividingRule::sceneWidthChangedSignal, trackLineWgt, &TrackLineWidget::updateSceneWidthSlot);
         // 绑定点击事件
