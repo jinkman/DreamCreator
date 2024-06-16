@@ -47,7 +47,7 @@ public:
 
     std::vector<std::shared_ptr<Track>> getTracks();
 
-    std::shared_ptr<Track> getTrackAtIndex(int i);
+    Track *getTrackAtIndex(int i);
 
     void addTrackToPlayer(std::shared_ptr<Track> track);
 

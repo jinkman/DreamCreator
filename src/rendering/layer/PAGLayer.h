@@ -19,9 +19,9 @@ public:
 
     void updatePagFile(std::shared_ptr<pag::PAGFile> pagFile);
 
-    std::shared_ptr<pag::PAGPlayer> getPAGPlayer();
+    pag::PAGPlayer *getPAGPlayer();
 
-    std::shared_ptr<pag::PAGFile> getPAGFile();
+    pag::PAGFile *getPAGFile();
 
 protected:
     PAGLayer(const nlohmann::json &obj, RootNode &rootNode);

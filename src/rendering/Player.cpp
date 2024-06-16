@@ -76,11 +76,11 @@ std::vector<std::shared_ptr<Track>> Player::getTracks() {
     return mTracks;
 }
 
-std::shared_ptr<Track> Player::getTrackAtIndex(int i) {
+Track *Player::getTrackAtIndex(int i) {
     if (i < 0 || i > getTrackSize() - 1) {
         return nullptr;
     }
-    return mTracks.at(i);
+    return mTracks.at(i).get();
 }
 
 void Player::addTrackToPlayer(std::shared_ptr<Track> track) {

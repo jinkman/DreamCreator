@@ -87,6 +87,7 @@ void OpenGLWidget::seekToTime(const DMTime &t) {
         return;
     }
     mPlayer->setProgress(float(t) / float(mPlayer->duration()));
+    emit GlobalMsgMgr::getInstance().updateProgress(mPlayer.get());
     update();
 }
 

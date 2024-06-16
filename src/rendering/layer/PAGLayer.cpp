@@ -77,12 +77,12 @@ void PAGLayer::updatePagFile(std::shared_ptr<pag::PAGFile> pagFile) {
     updateBoundBox(Rect::MakeWH(texture.width, texture.height));
 }
 
-std::shared_ptr<pag::PAGPlayer> PAGLayer::getPAGPlayer() {
-    return mPlayer;
+pag::PAGPlayer *PAGLayer::getPAGPlayer() {
+    return mPlayer.get();
 }
 
-std::shared_ptr<pag::PAGFile> PAGLayer::getPAGFile() {
-    return mPagFile;
+pag::PAGFile* PAGLayer::getPAGFile() {
+    return mPagFile.get();
 }
 
 void PAGLayer::releaseResources() {

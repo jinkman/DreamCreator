@@ -77,12 +77,12 @@ std::string RootNode::getRealFilePath(const std::string &path) {
     return realPath.make_preferred().string();
 }
 
-std::shared_ptr<Shader> RootNode::getImageShader() {
-    return mImageShader;
+Shader *RootNode::getImageShader() {
+    return mImageShader.get();
 }
 
-std::shared_ptr<CompositionLayer> RootNode::getRootComposition() {
-    return mRootCom;
+CompositionLayer* RootNode::getRootComposition() {
+    return mRootCom.get();
 }
 
 void RootNode::setRootPath(const std::filesystem::path &path) {

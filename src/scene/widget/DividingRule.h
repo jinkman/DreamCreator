@@ -7,7 +7,7 @@
 
 namespace DM {
 
-const float oneSecondNoScaleStep = 150.0f;
+const float oneSecondNoScaleStep = 50.0f;
 
 // 刻度尺相关
 class RuleWidget : public QWidget {

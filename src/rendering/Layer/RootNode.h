@@ -20,9 +20,9 @@ public:
 
     std::string getRealFilePath(const std::string &path);
 
-    std::shared_ptr<Shader> getImageShader();
+    Shader *getImageShader();
 
-    std::shared_ptr<CompositionLayer> getRootComposition();
+    CompositionLayer* getRootComposition();
 
     void setRootPath(const std::filesystem::path &path);
 

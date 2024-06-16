@@ -161,7 +161,7 @@ bool PAGFootage::readPixels(pag::ColorType colorType, pag::AlphaType alphaType, 
 }
 
 pag::PAGFile *PAGFootage::getPAGFile() {
-    return std::static_pointer_cast<PAGLayer>(mLayer)->getPAGFile().get();
+    return std::static_pointer_cast<PAGLayer>(mLayer)->getPAGFile();
 }
 
 std::vector<std::shared_ptr<ReplaceSlice>> PAGFootage::getReplaceInfo() const {
